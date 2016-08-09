@@ -7,5 +7,5 @@ $( "#runTTS" ).click(generateTTS());
 
 
 function generateTTS() {
-    $( "#result" ).load( newsUrl + " box" );
+    //$( "#result" ).load( newsUrl + " box" );
 }
