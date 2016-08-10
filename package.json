@@ -2,8 +2,14 @@
   "name": "application-name",
   "version": "0.0.1",
   "dependencies": {
-    "util": "latest",
+    "adm-zip": "^0.4.7",
+    "cheerio": "~0.19.0",
+    "colors": "^1.1.2",
+    "express": "^4.14.0",
+    "fs": "0.0.2",
     "http": "latest",
-    "cheerio": "~0.19.0"
+    "rimraf": "^2.5.4",
+    "unzip": "^0.1.11",
+    "util": "latest"
   }
 }
