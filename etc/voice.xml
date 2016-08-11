@@ -1,0 +1,8 @@
+<config xmlns="http://example">
+  <property key="log" value="true"/>
+  <voice engine="osx-speech" name="Anna" gender="female-adult" priority="100" lang="de"/>
+<!--   <lexicon href="lexicon-1.pls"/>
+  <lexicon href="lexicon-2.pls"/>
+  <css href="css-for-dtbooks.css"/>
+  <css href="css-for-zedai.css"/> -->
+</config>

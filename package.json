@@ -9,7 +9,6 @@
     "fs": "0.0.2",
     "http": "latest",
     "rimraf": "^2.5.4",
-    "unzip": "^0.1.11",
-    "util": "latest"
+    "unzip": "^0.1.11"
   }
 }
