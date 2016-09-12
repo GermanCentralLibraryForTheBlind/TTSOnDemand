@@ -4,7 +4,7 @@ port: 8181
 ws_path: ws
 ws_timeup: 25
 #DP2 launch config 
-exec_line: ../../../daisy_tools/pipeline-assembly-1.9.15/target/pipeline2-1.9.15_mac/daisy-pipeline/bin/pipeline2
+exec_line: ../../../daisy_tools/pipeline-assembly-1.9.15/target/pipeline2-1.9.15_linux/daisy-pipeline/bin/pipeline2
 
 local: true
 # ROBOT CONF
