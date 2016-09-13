@@ -25,7 +25,7 @@ var router = function (app) {
             });
 // todo session id
             req.on('end', function () {
-                console.info("received data: " +data);
+                //console.info("received data: " +data);
                 tTSGenerator.textToSpeech(data).then(function (result) {
                     //console.log(result);
                     return res.send('All is alright!');

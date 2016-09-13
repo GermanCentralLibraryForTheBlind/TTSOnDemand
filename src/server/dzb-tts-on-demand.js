@@ -30,7 +30,7 @@ const XHTML2DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript'
 const DP1_CLI = 'pipeline.sh'; // Daisy Pipeline 1
 const DP2_CLI = 'dp2';
 
-const detailedLog = false;
+const detailedLog = true;
 
 const TTSGenerator = {};
 const basePath = path.resolve(__dirname) + '/../../';
@@ -49,58 +49,68 @@ TTSGenerator.textToSpeech = function (page) {
 
     return new Promise(function (resolve, reject) {
 
-            prepareTMPFolder();
-            //console.log(page);
-            var $ = cheerio.load(page);
-            $ = normalize($);
-            saveNormalizedPage($);
-            //console.log($.html());
+        prepareTMPFolder();
+        //console.log(page);
+        var $ = cheerio.load(page);
+        $ = normalize($);
+        saveNormalizedPage($);
+        //console.log($.html());
 
-            htmlToDaisy3().then(function (result) {
+        htmlToDaisy3().then(function (result) {
 
-                //console.log(result);
-                console.log("Xhtml to daisy ready!\n\n");
-                return dtbookToEpub3();
+            if (result.stderr) {
+                console.log(result.stderr);
+            }
+            if (result.stdout && detailedLog) {
+                console.log(result.stdout);
+            }
+            //console.log(result);
+            console.log("Xhtml to daisy ready!\n\n");
+            return dtbookToEpub3();
 
-            }).catch(function (err) {
-                console.log(err);
-                reject(err);
-                // process.exit(1);
+        }).catch(function (err) {
+            console.log(err);
+            reject(err);
+            // process.exit(1);
 
-            }).then(function (result) {
+        }).then(function (result) {
 
-                if (result.stderr) {
-                    console.log(result.stderr);
-                }
-                if (result.stdout && detailedLog) {
-                    console.log(result.stdout);
-                }
-                console.log("Dtbook to epub3 ready!");
-                return extractResult();
+            if (result.stderr) {
+                console.log(result.stderr);
+            }
+            if (result.stdout && detailedLog) {
+                console.log(result.stdout);
+            }
+            console.log("Dtbook to epub3 ready!");
+            return extractResult();
 
-            }).catch(function (err) {
-                console.log(err);
-                reject(err);
-                //process.exit(1);
+        }).catch(function (err) {
+            console.log(err);
+            reject(err);
+            //process.exit(1);
 
-            }).then(function (result) {
+        }).then(function (result) {
 
-                console.log(result);
-                resolve(result);
+            console.log(result);
+            resolve(result);
 
-            }).catch(function (err) {
-                console.log(err);
-                reject(err);
-                //process.exit(1);
+        }).catch(function (err) {
+            console.log(err);
+            reject(err);
+            //process.exit(1);
 
-            });
-        }); // promise end
+        });
+    }); // promise end
 };
 
 
 function saveNormalizedPage(data) {
-//<meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
-    const $ = cheerio.load('<!DOCTYPE html SYSTEM "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de"><head><title>Test</title></head><body></body></html>');
+
+    var skeleton = '<!DOCTYPE html SYSTEM "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+    skeleton += '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de"><head>';
+    skeleton += '<title>Test</title></head><body></body></html>';
+
+    const $ = cheerio.load(skeleton);
     $('body').append(data.html());
 
     fs.writeFileSync(basePath + TMP + NORMALIZED_PAGE, $.html());
@@ -122,20 +132,39 @@ function normalize($) {
     $('img').remove()
     $('button').remove();
     $('a').remove();
-    $('br').remove();
+
+    const $br = $('br');
+    $br.remove();
+    $br.each(function () {
+        $(this).replaceWith(' ');
+    });
     //$('a').removeAttr('href');
     $('noscript').remove();
     //$('span').remove();
 
-    $('h3').replaceWith('<h1>' + $('h3').html() +'</h1>');
-    //$('.dachzeile').each(function () {
-    //    var p = $('<p>' + $(this).html() + '</p>');
-    //    $(this).replaceWith(p);
+    //const $h1 = $('h1');
+
+    //$h1.children().each(function(index, element){
+    //    $(element).insertAfter($(element).parent());
+    //});
+    //
+    //$h1.remove();
+
+    //var newElement = $("<p />");
+    //cheerio.each($('.dachzeile').attributes, function(i, attrib){
+    //    $(newElement).attr(attrib.name, attrib.value);
+    //});
+    //
+    //// Replace the current element with the new one and carry over the contents
+    //$('.dachzeile').replaceWith(function () {
+    //    return $(newElement).append($(this).contents());
     //});
 
-    $('br').each(function () {
-        $(this).replaceWith(' ');
-    });
+    //$('.dachzeile').replaceWith($('<h1/>').append($('.dachzeile')));
+   // $('.headline').replaceWith('<h1>' + $('.headline').html() + '</h1>');
+
+    $('h3').replaceWith('<h2>' + $('h3').html() + '</h2>');
+
 
     $('div > span').each(function () {
         var p = $('<p>' + $(this).html() + '</p>');

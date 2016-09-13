@@ -28,7 +28,7 @@ $(document).ready(function () {
 
     $('html > head').append(styleTag);
 
-    $("h1, h2, h3, h4 , h5, p").each(function () {
+    $("h1, h2, h3, h4 , h5, p, span").each(function () {
         $(this).attr('id', 'ID' + uuid.v4()); //alternative will be jquery-ui uniqueId()
     });
 
