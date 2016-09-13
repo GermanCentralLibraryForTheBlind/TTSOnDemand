@@ -1,0 +1,26 @@
+#btnRead {
+    line-height: 16px;
+    width: 100px;
+    font-size: 12pt;
+    font-family: Open Sans;
+    margin-top: 10px;
+    margin-right: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #2568b4;
+    color: white;
+    display: inline-block;
+    letter-spacing: 2px;
+    padding: 10px 10px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border: 1px solid rgba(0,0,0,0.3);
+    border-bottom-width: 3px
+    border-color: rgba(0,0,0,0.3);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+#btnRead:hover {
+    background: #5c90d4;
+    border-color: rgba(0,0,0,0.5);
+}

@@ -12,21 +12,21 @@
     <!--reader-->
     <link href="css/styles.css" rel="stylesheet" media="screen">
 
-    <script type="text/javascript" src="js/readium-js_all.js"> </script>
-    <script type="text/javascript" src="js/reader.js"> </script>
+    <script type="text/javascript" src="external/readium-js_all.js"> </script>
+    <script type="text/javascript" src="src/client/reader.js"> </script>
 
 
 </head>
 <body>
-<script src="js/bootstrap.min.js"></script>
-<!--<script src="js/http_code.jquery.com_jquery-2.0.0.js"></script>-->
+<script src="external/bootstrap.min.js"></script>
+<!--<script src="src/http_code.jquery.com_jquery-2.0.0.src"></script>-->
 
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
     <div class="container">
         <h1 class="display-3">DZB Vorlese Service</h1>
-        <p>Starten Sie hier die beispielhafte Vorlese-Funktion</p>
-        <button id="read" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Start</button>
+        <p>Beispielhafte Umsetzung einer Vorlese-Funktion</p>
+        <button id="btnRead" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Vorlesen</button>
     </div>
 </div>
 <!--<div id="viewport"> </div>-->
@@ -45,7 +45,7 @@
                     <div id="viewport"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="btnClose" ype="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
