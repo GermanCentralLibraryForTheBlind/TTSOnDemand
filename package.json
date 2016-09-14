@@ -29,10 +29,11 @@
   "scripts": {
     "tts-webservice": "node src/server/tts-webservice.js",
     "webservice-test": "src/server/test/test-tts-webservice.js",
-    "build-bundle": "browserify -t cssify src/client/reader2.js > public/bundle.js"
+    "build-bundle": "node_modules/.bin/browserify -t cssify src/client/reader2.js > public/bundle.js"
   },
   "devDependencies": {
     "backbone": "^1.3.3",
+    "browserify": "^13.1.0",
     "browserify-shim": "^3.8.12",
     "cssify": "^1.0.3",
     "jquery": "^3.1.0",

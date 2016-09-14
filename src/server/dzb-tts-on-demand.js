@@ -7,6 +7,7 @@ const
     path = require("path"),
     rimraf = require('rimraf'),
     AdmZip = require('adm-zip'),
+    os = require('os'),
     exec = require('child_process').exec;
 
 
@@ -17,14 +18,19 @@ const NORMALIZED_PAGE = 'normalized_page.html';
 const DAISY3 = 'daisy3.xml';
 const EPUB3 = 'dtbook-to-epub3.zip';
 
-// linux
-//const PATH_DP1 = '/home/alan/pipeline-20111215/';
-//const PATH_DP2_CLI = '/home/alan/pipeline2-cli/';
 
-// mac
-const PATH_DP1 = '/Users/alan/workspace/daisy_tools/pipeline-20111215';
-const PATH_DP2_CLI = '/Users/alan/workspace/daisy_tools/pipeline2-cli';
+var PATH_DP1 = '';
+var PATH_DP2_CLI = '';
 
+if (os.platform() == 'linux') {
+    PATH_DP1 = '/home/alan/pipeline-20111215/';
+    PATH_DP2_CLI = '/home/alan/pipeline2-cli/';
+}
+
+if (os.platform() == 'darwin') {
+    PATH_DP1 = '/Users/alan/workspace/daisy_tools/pipeline-20111215';
+    PATH_DP2_CLI = '/Users/alan/workspace/daisy_tools/pipeline2-cli';
+}
 
 const XHTML2DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript'
 const DP1_CLI = 'pipeline.sh'; // Daisy Pipeline 1
@@ -161,7 +167,7 @@ function normalize($) {
     //});
 
     //$('.dachzeile').replaceWith($('<h1/>').append($('.dachzeile')));
-   // $('.headline').replaceWith('<h1>' + $('.headline').html() + '</h1>');
+    // $('.headline').replaceWith('<h1>' + $('.headline').html() + '</h1>');
 
     $('h3').replaceWith('<h2>' + $('h3').html() + '</h2>');
 
