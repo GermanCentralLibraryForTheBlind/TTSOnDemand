@@ -49,7 +49,7 @@ var router = function (app) {
             page = replacements(page);
             page = inject(page);
 
-            fs.writeFileSync(path.resolve(__dirname) + '/../../tmp/temp.html', page);
+            fs.writeFileSync(path.resolve(__dirname) + '/../../public/temp.html', page);
 
             res.send('ready');
         })
@@ -79,7 +79,7 @@ var router = function (app) {
 
     function inject(page) {
         const $ = cheerio.load(page);
-        $('body').append($('<script src="http://localhost:3000/public/bundle.js"></script>'));
+        $('body').append($('<script src="bundle.js"></script>'));
         return $.html();
     }
 };

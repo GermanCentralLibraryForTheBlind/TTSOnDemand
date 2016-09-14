@@ -7,9 +7,11 @@ const
 Backbone.$ = $;
 require('./css/style.css');
 
-const daisyFile = 'http://localhost:3000/static/epub/EPUB/daisy3-2.xhtml';
-const smil = 'http://localhost:3000/static/epub/EPUB/mo/daisy3-2.smil';
-const backend = 'http://localhost:3000/tts';
+const host = 'http://' + window.location.host;
+
+const daisyFile = host + '/static/epub/EPUB/daisy3-2.xhtml';
+const smil = host + '/static/epub/EPUB/mo/daisy3-2.smil';
+const backend = host + '/tts';
 
 var player;
 
