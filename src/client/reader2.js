@@ -30,7 +30,7 @@ $(document).ready(function () {
 
     $('html > head').append(styleTag);
 
-    $("h1, h2, h3, h4 , h5, p, span").each(function () {
+    $('h1, h2, h3, h4, h5, p, span', $(config.content[0], config.content[1])).each(function () {
         $(this).attr('id', 'ID' + uuid.v4()); //alternative will be jquery-ui uniqueId()
     });
 
@@ -67,10 +67,13 @@ function readContent() {
             return;
         }
 
-        $("h1, h2, h3, h4 , h5, p").each(function () {
+        $('h1, h2, h3, h4, h5, p, span', $(config.content[0], config.content[1])).each(function () {
 
             const id = $(this).attr('id');
-            $(this).replaceWith(tts.find("#" + id));
+
+            const ttsCounterpart = tts.find("#" + id);
+            if (!$.isEmptyObject(ttsCounterpart))
+                $(this).replaceWith(ttsCounterpart);
 
         }).promise().done(function () {
 

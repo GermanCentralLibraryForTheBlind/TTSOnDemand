@@ -148,28 +148,37 @@ function normalize($) {
     $('noscript').remove();
     //$('span').remove();
 
-    //const $h1 = $('h1');
 
-    //$h1.children().each(function(index, element){
-    //    $(element).insertAfter($(element).parent());
-    //});
+    // todo refactoring
+    var newElement = $("<h1/>");
+    var id = $('.dachzeile').attr('id');
+    newElement.attr('id', id);
+    newElement.attr('class', 'dachzeile');
+    // Replace the current element with the new one and carry over the contents
+    $('.dachzeile').replaceWith(function () {
+        return $(newElement).append($(this).contents());
+    });
+
+    newElement = $("<h2/>");
+    id = $('.headline').attr('id');
+    newElement.attr('id', id);
+    newElement.attr('class', 'headline');
+    // Replace the current element with the new one and carry over the contents
+    $('.headline').replaceWith(function () {
+        return $(newElement).append($(this).contents());
+    });
+
+
+    const $h1 = $('h1');
+
+    $h1.children().each(function (index, element) {
+        $(element).insertAfter($(element).parent());
+    });
     //
-    //$h1.remove();
+    $h1.remove();
 
-    //var newElement = $("<p />");
-    //cheerio.each($('.dachzeile').attributes, function(i, attrib){
-    //    $(newElement).attr(attrib.name, attrib.value);
-    //});
-    //
-    //// Replace the current element with the new one and carry over the contents
-    //$('.dachzeile').replaceWith(function () {
-    //    return $(newElement).append($(this).contents());
-    //});
 
-    //$('.dachzeile').replaceWith($('<h1/>').append($('.dachzeile')));
-    // $('.headline').replaceWith('<h1>' + $('.headline').html() + '</h1>');
-
-    $('h3').replaceWith('<h2>' + $('h3').html() + '</h2>');
+    $('h3').replaceWith('<h3>' + $('h3').html() + '</h3>');
 
 
     $('div > span').each(function () {
@@ -189,6 +198,8 @@ function normalize($) {
     //$.contents().filter(function() {
     //    return this.nodeType = Node.TEXT_NODE && /\S/.test(this.nodeValue) === false;
     //}).remove();
+
+    $('p:empty').remove();
 
     fs.writeFileSync(basePath + TMP + 'after_normalize.html', $.html());
 
