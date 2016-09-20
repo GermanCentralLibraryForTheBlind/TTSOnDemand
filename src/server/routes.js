@@ -49,7 +49,7 @@ var router = function (app) {
             var timeStamp= '';
             try { timeStamp = req._startTime  } catch (err) {}
 
-            console.info('[INFO] POST ' + timeStamp  + ' ' +  userAgent + ' url: ' + fullUrl(req));
+            console.info('[INFO] POST ' + timeStamp  + ' ' +  userAgent);// todo: real request ip  + ' url: ' + fullUrl(req));
 
             req.setEncoding('utf8');
 
