@@ -17,7 +17,7 @@ const VOICE_CONFIG = 'etc/voice.xml';
 const NORMALIZED_PAGE = 'normalized_page.html';
 const DAISY3 = 'daisy3.xml';
 const EPUB3 = 'dtbook-to-epub3.zip';
-
+const HOST_DP2 = "'http://192.168.0.7'";
 
 var PATH_DP1 = '';
 var PATH_DP2_CLI = '';
@@ -32,7 +32,7 @@ if (os.platform() == 'darwin') {
     PATH_DP2_CLI = '/Users/alan/workspace/daisy_tools/pipeline2-cli';
 }
 
-const XHTML2DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript'
+const XHTML2DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript';
 const DP1_CLI = 'pipeline.sh'; // Daisy Pipeline 1
 const DP2_CLI = 'dp2';
 
@@ -54,6 +54,8 @@ const basePath = path.resolve(__dirname) + '/../../';
 TTSGenerator.textToSpeech = function (page) {
 
     return new Promise(function (resolve, reject) {
+
+         //return resolve('okay!'); // only testing
 
         prepareTMPFolder();
         //console.log(page);
@@ -138,6 +140,8 @@ function normalize($) {
     $('img').remove()
     $('button').remove();
     $('a').remove();
+    $('ul').remove();
+    $('hr').remove();
 
     const $br = $('br');
     $br.remove();
@@ -150,6 +154,9 @@ function normalize($) {
 
 
     // todo refactoring
+    //
+    // dachzeile
+    //
     var newElement = $("<h1/>");
     var id = $('.dachzeile').attr('id');
     newElement.attr('id', id);
@@ -159,6 +166,9 @@ function normalize($) {
         return $(newElement).append($(this).contents());
     });
 
+    //
+    // headline
+    //
     newElement = $("<h2/>");
     id = $('.headline').attr('id');
     newElement.attr('id', id);
@@ -168,11 +178,13 @@ function normalize($) {
         return $(newElement).append($(this).contents());
     });
 
-
+    //
+    // replace org  h1 with temp h1 h2
+    //
     const $h1 = $('h1');
 
     $h1.children().each(function (index, element) {
-        $(element).insertAfter($(element).parent());
+        $(element).insertBefore($(element).parent());
     });
     //
     $h1.remove();
@@ -186,13 +198,18 @@ function normalize($) {
         $(this).replaceWith(p);
     });
 
+    $('cite > span').each(function () {
+        var p = $('<p>' + $(this).html() + '</p>');
+        $(this).replaceWith(p);
+    });
     // unwrap div elements
     $('div').each(function () {
-        $('div').each(function () {
-            var $this = $(this);
-            $(this).after($this.contents()).remove();
-        });
+        unwrap($,'div');
     });
+
+    unwrap($,'blockquote');
+    unwrap($,'footer');
+    unwrap($,'cite');
 
     // remove whitespace between tags
     //$.contents().filter(function() {
@@ -206,6 +223,14 @@ function normalize($) {
     return $;
 }
 
+
+function unwrap($, el) {
+
+    $(el).each(function () {
+        var $this = $(this);
+        $(this).after($this.contents()).remove();
+    });
+}
 
 function htmlToDaisy3() {
 
@@ -225,10 +250,12 @@ function dtbookToEpub3() {
     const output = ' -o ' + basePath + TMP + EPUB3;
     const voiceConfig = ' --x-tts-config ' + basePath + VOICE_CONFIG;
     const language = ' --x-language de ';
+    const hostDP2 = '--host ' + HOST_DP2;
 
     var cmd = 'cd ' + PATH_DP2_CLI + ' && ruby ' + DP2_CLI + ' ';
     cmd += 'dtbook-to-epub3 --x-audio true' + voiceConfig;
     cmd += language;
+    //cmd += hostDP2;
     cmd += ' ' + input + output;
     console.log(cmd);
 
@@ -243,7 +270,7 @@ function execCmd(cmd) {
         exec(cmd, function (error, stdout, stderr) {
 
             if (error) {
-                reject(error);
+                reject(stdout); // raise exception???
             } else {
                 resolve({
                     stdout: stdout,

@@ -24,9 +24,10 @@ const config = {
 
 $(document).ready(function () {
 
-    const styleTag = $('<style>.highlight { background-color: yellow; } </style>')
+    const styleTag = $('<style>.highlight { background-color: #ffcb59; } </style>')
     const btnRead = $('<button id="' + config.btnRead + '" type="button">Vorlesen </button>');
     $(config.addButtonTo).append(btnRead);
+
 
     $('html > head').append(styleTag);
 
@@ -34,19 +35,25 @@ $(document).ready(function () {
         $(this).attr('id', 'ID' + uuid.v4()); //alternative will be jquery-ui uniqueId()
     });
 
-    $("#" + config.btnRead).click(function () {
+    $("#" + config.btnRead).click(function (event) {
 
         if (player != null && player.isLoaded()) {
             player.playpause();
             return;
         }
+
+        const btn = $(event.currentTarget);
+
+        btn.addClass('sk-rotating-plane');
+
         const content = $(config.content[0], config.content[1]).html();
         sendData(content).then(function (result) {
-
+            btn.removeClass('sk-rotating-plane');
             //console.log(result);
             readContent();
 
         }).catch(function (err) {
+            btn.removeClass('sk-rotating-plane');
             console.log(err);
         });
 
@@ -67,13 +74,40 @@ function readContent() {
             return;
         }
 
-        $('h1, h2, h3, h4, h5, p, span', $(config.content[0], config.content[1])).each(function () {
+        $('h1, h2, h3, h4, h5, p', $(config.content[0], config.content[1])).each(function () {
 
-            const id = $(this).attr('id');
+            const $el = $(this);
+            const id = $el.attr('id');
 
             const ttsCounterpart = tts.find("#" + id);
-            if (!$.isEmptyObject(ttsCounterpart))
-                $(this).replaceWith(ttsCounterpart);
+            if (!$.isEmptyObject(ttsCounterpart)) {
+
+                if ($el.children('span').hasClass('dachzeile')) {
+
+                    console.log("el " + $el.html());
+                    //console.log("ttsCounterpart " + ttsCounterpart.html());
+
+                    // ugly hack urggg
+                    const idDachzeile = $el.children('span.dachzeile').attr('id');
+                    const $dachzeileTmp = tts.find("#" + idDachzeile);
+
+                    const idHeadline = $el.children('span.headline').attr('id');
+                    const $headlineTmp = tts.find("#" + idHeadline);
+
+                    const $dachzeile =  $dachzeileTmp.children('span');
+                    $dachzeile.addClass('dachzeile');
+
+                    const $headline =  $headlineTmp.children('span');
+                    $headline.addClass('headline');
+
+                    $el.empty();
+
+                    $dachzeile.appendTo($el);
+                    $headline.appendTo($el);
+                }
+                else
+                    $el.replaceWith(ttsCounterpart);
+            }
 
         }).promise().done(function () {
 
@@ -229,9 +263,9 @@ const TextArea = Backbone.View.extend({
             if (elm.length > 0) {
                 this.lastId = id;
 
-                //if (!$(elm[0]).visible()) {
-                //    elm[0].scrollIntoView();
-                //}
+                if ($("#" + id).is(":visible") != true) {
+                    elm[0].scrollIntoView();
+                }
                 elm.addClass("highlight");
             }
 

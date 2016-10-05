@@ -13,7 +13,7 @@ app.use('/public', express.static(publicFolder));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-var routes = require("./routes.js")(app);
+require("./routes.js")(app);
 
 
 app.listen(process.env.PORT || 3000, function () {

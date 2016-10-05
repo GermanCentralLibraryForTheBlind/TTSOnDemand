@@ -39,14 +39,16 @@
     <div class="container">
         <h1 class="display-3" id="ui-id-1">DZB Vorlese Service
             <a href="#">
-                <img alt="Brand" src="brand.svg" width="200" height="150">
+                <img alt="Brand" src="experiment.svg" width="200" height="150">
             </a>
         </h1>
 
         <div class="form-group">
             <label class="label label-primary" for="url">URL:</label>
             <input type="text" class="form-control" id="url"
-                   value="http://www.mdr.de/sachsen/bautzen/austausch-schwinge-in-nochten-100.html">
+                   value = "http://www.mdr.de/sachsen/sperrung-hauptbahnhof-aufgehoben-100.html">
+            //http://www.mdr.de/nachrichten/politik/regional/proteste-gegen-einheitsfeier-100.html
+            //http://www.mdr.de/sachsen/dresden/frank-richter-stiftung-frauenkirche-100.html
         </div>
         <button id="btnLoadPage" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">
             Seite Laden
@@ -59,7 +61,7 @@
     const backend = 'http://' + window.location.host + '/injected';
     $("#btnLoadPage").click(function () {
         const href = $("#url").val();
-alert('test');
+//alert('test');
         loadPage(backend, href);
 
     });

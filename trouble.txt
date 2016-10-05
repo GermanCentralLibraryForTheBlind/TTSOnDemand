@@ -2,3 +2,8 @@ daisy pipeline 2 No 'class' in configuration for px:inline-css
 
 - delete jobs
 - restart dp2
+
+
+No 'class' in configuration for px:break-detect
+
+- switch to java 7

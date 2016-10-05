@@ -1,6 +1,10 @@
 <config xmlns="http://example">
   <property key="log" value="true"/>
   <voice engine="osx-speech" name="Anna" gender="female-adult" priority="100" lang="de"/>
+  <voice engine="acapela" name="Julia" gender="female-adult" priority="100" lang="de"/>
+  <voice engine="acapela" name="Klaus" gender="male-adult" priority="100" lang="de"/>
+  <!--<voice engine="acapela" name="Peter" gender="male-adult" priority="100" lang="de"/>-->
+  <voice engine="acapela" name="QueenElizabeth" gender="female-adult" priority="100" lang="en"/>
 <!--   <lexicon href="lexicon-1.pls"/>
   <lexicon href="lexicon-2.pls"/>
   <css href="css-for-dtbooks.css"/>
