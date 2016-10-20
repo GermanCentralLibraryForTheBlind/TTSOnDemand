@@ -1,7 +1,7 @@
 /**
  * Created by lars voigt on 04.09.16.
  */
-const tTSGenerator = require('../dzb-tts-on-demand.js'),
+const tTSGenerator = require('../../tts/dzb-tts-on-demand.js'),
     fs = require('fs'),
     path = require("path");
 

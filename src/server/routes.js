@@ -1,4 +1,4 @@
-const tTSGenerator = require('./dzb-tts-on-demand.js');
+const tTSGenerator = require('./../tts/dzb-tts-on-demand.js');
 const cheerio = require('cheerio');
 const request = require('request'),
     path = require("path"),

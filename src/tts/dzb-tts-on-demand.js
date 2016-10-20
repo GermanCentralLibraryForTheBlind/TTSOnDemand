@@ -8,13 +8,13 @@ const
     rimraf = require('rimraf'),
     AdmZip = require('adm-zip'),
     os = require('os'),
-    exec = require('child_process').exec;
+    exec = require('child_process').exec,
+    InputNormalizers = require('./normalizers');
 
 
-const TMP = 'tmp/';
-const VOICE_CONFIG = 'etc/voice.xml';
-
-const NORMALIZED_PAGE = 'normalized_page.html';
+const TMP = 'tmp/',
+    VOICE_CONFIG = 'etc/voice.xml',
+    NORMALIZED_PAGE = 'normalized_page.html';
 const DAISY3 = 'daisy3.xml';
 const EPUB3 = 'dtbook-to-epub3.zip';
 const HOST_DP2 = "'http://192.168.0.7'";
@@ -32,7 +32,7 @@ if (os.platform() == 'darwin') {
     PATH_DP2_CLI = '/Users/alan/workspace/daisy_tools/pipeline2-cli';
 }
 
-const XHTML2DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript';
+const XHTML_2_DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript';
 const DP1_CLI = 'pipeline.sh'; // Daisy Pipeline 1
 const DP2_CLI = 'dp2';
 
@@ -60,7 +60,11 @@ TTSGenerator.textToSpeech = function (page) {
         prepareTMPFolder();
         //console.log(page);
         var $ = cheerio.load(page);
-        $ = normalize($);
+
+        fs.writeFileSync(basePath + TMP + 'before_normalize.html', $.html());
+        $ = InputNormalizers.MdrNormalizer($);
+        fs.writeFileSync(basePath + TMP + 'after_normalize.html', $.html());
+
         saveNormalizedPage($);
         //console.log($.html());
 
@@ -83,10 +87,10 @@ TTSGenerator.textToSpeech = function (page) {
 
         }).then(function (result) {
 
-            if (result.stderr) {
+            if (result != null && result.stderr) {
                 console.log(result.stderr);
             }
-            if (result.stdout && detailedLog) {
+            if (result != null && result.stdout && detailedLog) {
                 console.log(result.stdout);
             }
             console.log("Dtbook to epub3 ready!");
@@ -126,118 +130,13 @@ function saveNormalizedPage(data) {
 }
 
 
-function normalize($) {
-
-    // better way to do this will be more generic ->
-    // build element tree from  h1-hx, p elements
-    fs.writeFileSync(basePath + TMP + 'before_normalize.html', $.html());
-
-    $('.hidden').remove();
-    $('.conComments').remove();
-    $('.conRelatedLinks').remove();
-    $('.conTimestamp').remove();
-    $('.cssBoxTeaserStandard').remove();
-    $('img').remove()
-    $('button').remove();
-    $('a').remove();
-    $('ul').remove();
-    $('hr').remove();
-
-    const $br = $('br');
-    $br.remove();
-    $br.each(function () {
-        $(this).replaceWith(' ');
-    });
-    //$('a').removeAttr('href');
-    $('noscript').remove();
-    //$('span').remove();
-
-
-    // todo refactoring
-    //
-    // dachzeile
-    //
-    var newElement = $("<h1/>");
-    var id = $('.dachzeile').attr('id');
-    newElement.attr('id', id);
-    newElement.attr('class', 'dachzeile');
-    // Replace the current element with the new one and carry over the contents
-    $('.dachzeile').replaceWith(function () {
-        return $(newElement).append($(this).contents());
-    });
-
-    //
-    // headline
-    //
-    newElement = $("<h2/>");
-    id = $('.headline').attr('id');
-    newElement.attr('id', id);
-    newElement.attr('class', 'headline');
-    // Replace the current element with the new one and carry over the contents
-    $('.headline').replaceWith(function () {
-        return $(newElement).append($(this).contents());
-    });
-
-    //
-    // replace org  h1 with temp h1 h2
-    //
-    const $h1 = $('h1');
-
-    $h1.children().each(function (index, element) {
-        $(element).insertBefore($(element).parent());
-    });
-    //
-    $h1.remove();
-
-
-    $('h3').replaceWith('<h3>' + $('h3').html() + '</h3>');
-
-
-    $('div > span').each(function () {
-        var p = $('<p>' + $(this).html() + '</p>');
-        $(this).replaceWith(p);
-    });
-
-    $('cite > span').each(function () {
-        var p = $('<p>' + $(this).html() + '</p>');
-        $(this).replaceWith(p);
-    });
-    // unwrap div elements
-    $('div').each(function () {
-        unwrap($,'div');
-    });
-
-    unwrap($,'blockquote');
-    unwrap($,'footer');
-    unwrap($,'cite');
-
-    // remove whitespace between tags
-    //$.contents().filter(function() {
-    //    return this.nodeType = Node.TEXT_NODE && /\S/.test(this.nodeValue) === false;
-    //}).remove();
-
-    $('p:empty').remove();
-
-    fs.writeFileSync(basePath + TMP + 'after_normalize.html', $.html());
-
-    return $;
-}
-
-
-function unwrap($, el) {
-
-    $(el).each(function () {
-        var $this = $(this);
-        $(this).after($this.contents()).remove();
-    });
-}
 
 function htmlToDaisy3() {
 
     const input = ' --inputFile=' + basePath + TMP + NORMALIZED_PAGE;
     const output = ' --outputFile=' + basePath + TMP + DAISY3;
 
-    const cmd = 'cd ' + PATH_DP1 + ' && sh ' + DP1_CLI + ' ' + XHTML2DTBOOK + input + output;
+    const cmd = 'cd ' + PATH_DP1 + ' && sh ' + DP1_CLI + ' ' + XHTML_2_DTBOOK + input + output;
     console.log(cmd);
 
     return execCmd(cmd);
