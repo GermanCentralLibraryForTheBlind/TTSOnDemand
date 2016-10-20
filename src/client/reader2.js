@@ -1,3 +1,8 @@
+/* todo:
+ [ ] verify that no content/structure of original page lost during injected smil tagged elements
+ [ ] get the path to smil and new tagged content  dynamically
+ */
+
 const
     Backbone = require('backbone'),
     $ = require('jquery'),
@@ -69,7 +74,7 @@ function readContent() {
     tts.load(daisyFile, function (response, status, xhr) {
 
         if (status == "error") {
-            var msg = "Sorry but there was an error: ";
+            var msg = "Sorry but there is a problem: ";
             console.log(msg + xhr.status + " " + xhr.statusText);
             return;
         }
