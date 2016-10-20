@@ -42,7 +42,7 @@ const TTSGenerator = {};
 const basePath = path.resolve(__dirname) + '/../../';
 
 /* todo:
- [ ] own module for normalize
+ [X] own module for normalize
  [ ] own folder per request with unique id
  [ ] config file
  [ ] caching: synthesize only on the first time
