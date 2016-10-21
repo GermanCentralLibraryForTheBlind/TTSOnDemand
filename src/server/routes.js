@@ -1,6 +1,6 @@
-const tTSGenerator = require('./../tts/dzb-tts-on-demand.js');
-const cheerio = require('cheerio');
-const request = require('request'),
+const generator = require('./../tts/dzb-tts-on-demand.js'),
+    cheerio = require('cheerio'),
+    request = require('request'),
     path = require("path"),
     fs = require('fs');
 
@@ -26,7 +26,7 @@ var router = function (app) {
 // todo session id
             req.on('end', function () {
                 //console.info("received data: " +data);
-                tTSGenerator.textToSpeech(data).then(function (result) {
+                generator.textToSpeech(data).then(function (result) {
                     //console.log(result);
                     return res.send('All is alright!');
 

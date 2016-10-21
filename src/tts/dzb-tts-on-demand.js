@@ -8,16 +8,21 @@ const
     rimraf = require('rimraf'),
     AdmZip = require('adm-zip'),
     os = require('os'),
+    crypto = require('crypto'),
     exec = require('child_process').exec,
     InputNormalizers = require('./normalizers');
 
 
 const TMP = 'tmp/',
+    DAISY3 = 'daisy3.xml',
+    EPUB3 = 'dtbook-to-epub3.zip',
     VOICE_CONFIG = 'etc/voice.xml',
-    NORMALIZED_PAGE = 'normalized_page.html';
-const DAISY3 = 'daisy3.xml';
-const EPUB3 = 'dtbook-to-epub3.zip';
-const HOST_DP2 = "'http://192.168.0.7'";
+    NORMALIZED_PAGE = 'normalized_page.html',
+    XHTML_2_DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript',
+    DP1_CLI = 'pipeline.sh', // Daisy Pipeline 1
+    DP2_CLI = 'dp2';
+
+//const HOST_DP2 = "'http://192.168.0.7'";
 
 var PATH_DP1 = '';
 var PATH_DP2_CLI = '';
@@ -32,53 +37,54 @@ if (os.platform() == 'darwin') {
     PATH_DP2_CLI = '/Users/alan/workspace/daisy_tools/pipeline2-cli';
 }
 
-const XHTML_2_DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript';
-const DP1_CLI = 'pipeline.sh'; // Daisy Pipeline 1
-const DP2_CLI = 'dp2';
+const BASE_PATH = path.resolve(__dirname) + '/../../';
 
 const detailedLog = true;
-
 const TTSGenerator = {};
-const basePath = path.resolve(__dirname) + '/../../';
+
 
 /* todo:
  [X] own module for normalize
- [ ] own folder per request with unique id
+ [X] own folder per job with unique id
+ [X] caching: synthesize only on the first time
+ [ ] start dp2 via client
+ [ ] proper logging strategy
  [ ] config file
- [ ] caching: synthesize only on the first time
  [ ] test if the dp2 service is running
  [ ] find a way to get the uncompressed epub content direct!
-
+ [ ] strategy how long job data have in store until it will be deleted
  */
 
 TTSGenerator.textToSpeech = function (page) {
 
     return new Promise(function (resolve, reject) {
 
-         //return resolve('okay!'); // only testing
-
+        //return resolve('okay!'); // only testing
         prepareTMPFolder();
         //console.log(page);
+
         var $ = cheerio.load(page);
+        const jobID = getMD5Checksum($);
+        const jobPath = generateJobPath(jobID);
+        if (fs.existsSync(jobPath))
+            resolve('todo: return path to job result');
 
-        fs.writeFileSync(basePath + TMP + 'before_normalize.html', $.html());
-        $ = InputNormalizers.MdrNormalizer($);
-        fs.writeFileSync(basePath + TMP + 'after_normalize.html', $.html());
-
-        saveNormalizedPage($);
+        createTmpFolderForJob(jobPath);
+        $ = normalizePage($, jobPath);
+        saveNormalizedPage($, jobPath);
         //console.log($.html());
 
-        htmlToDaisy3().then(function (result) {
+        htmlToDaisy3(jobPath).then(function (result) {
 
-            if (result.stderr) {
+            if (result != null && result.stderr) {
                 console.log(result.stderr);
             }
-            if (result.stdout && detailedLog) {
+            if (result != null && result.stdout && detailedLog) {
                 console.log(result.stdout);
             }
             //console.log(result);
             console.log("Xhtml to daisy ready!\n\n");
-            return dtbookToEpub3();
+            return dtbookToEpub3(jobPath);
 
         }).catch(function (err) {
             console.log(err);
@@ -94,7 +100,7 @@ TTSGenerator.textToSpeech = function (page) {
                 console.log(result.stdout);
             }
             console.log("Dtbook to epub3 ready!");
-            return extractResult();
+            return extractResult(jobPath);
 
         }).catch(function (err) {
             console.log(err);
@@ -116,53 +122,61 @@ TTSGenerator.textToSpeech = function (page) {
 };
 
 
-function saveNormalizedPage(data) {
+function normalizePage($, jobPath) {
+
+    // todo normalizer configurable
+    fs.writeFileSync(jobPath + 'before_normalize.html', $.html());
+    const $result = InputNormalizers.MdrNormalizer($);
+    fs.writeFileSync(jobPath + 'after_normalize.html', $result.html());
+
+    return $result;
+}
+
+function saveNormalizedPage($data, jobPath) {
 
     var skeleton = '<!DOCTYPE html SYSTEM "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
     skeleton += '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de"><head>';
     skeleton += '<title>Test</title></head><body></body></html>';
 
     const $ = cheerio.load(skeleton);
-    $('body').append(data.html());
+    $('body').append($data.html());
 
-    fs.writeFileSync(basePath + TMP + NORMALIZED_PAGE, $.html());
+    fs.writeFileSync(jobPath + NORMALIZED_PAGE, $.html());
     console.log("Write normalized page! \n\n ");
 }
 
 
+function htmlToDaisy3(jobPath) {
 
-function htmlToDaisy3() {
-
-    const input = ' --inputFile=' + basePath + TMP + NORMALIZED_PAGE;
-    const output = ' --outputFile=' + basePath + TMP + DAISY3;
-
+    const input = ' --inputFile=' + jobPath + NORMALIZED_PAGE;
+    const output = ' --outputFile=' + jobPath + DAISY3;
     const cmd = 'cd ' + PATH_DP1 + ' && sh ' + DP1_CLI + ' ' + XHTML_2_DTBOOK + input + output;
-    console.log(cmd);
 
     return execCmd(cmd);
 
 }
 
-function dtbookToEpub3() {
+function dtbookToEpub3(jobPath) {
 
-    const input = ' --i-source ' + basePath + TMP + DAISY3;
-    const output = ' -o ' + basePath + TMP + EPUB3;
-    const voiceConfig = ' --x-tts-config ' + basePath + VOICE_CONFIG;
+    const input = ' --i-source ' + jobPath + DAISY3;
+    const output = ' -o ' + jobPath + EPUB3;
+    const voiceConfig = ' --x-tts-config ' + BASE_PATH + VOICE_CONFIG;
     const language = ' --x-language de ';
-    const hostDP2 = '--host ' + HOST_DP2;
+    // const hostDP2 = '--host ' + HOST_DP2;
 
     var cmd = 'cd ' + PATH_DP2_CLI + ' && ruby ' + DP2_CLI + ' ';
     cmd += 'dtbook-to-epub3 --x-audio true' + voiceConfig;
     cmd += language;
-    //cmd += hostDP2;
     cmd += ' ' + input + output;
-    console.log(cmd);
 
     return execCmd(cmd);
 }
 
 
 function execCmd(cmd) {
+
+    if (detailedLog)
+        console.log(cmd);
 
     return new Promise(function (resolve, reject) {
 
@@ -181,21 +195,33 @@ function execCmd(cmd) {
 }
 
 function prepareTMPFolder() {
-    rimraf.sync(TMP);
-    fs.mkdirSync(TMP);
+   // rimraf.sync(TMP);
+
+    if (!fs.existsSync(BASE_PATH + TMP)){
+        fs.mkdirSync(BASE_PATH + TMP);
+    }
 }
 
-function extractResult() {
+function generateJobPath(jobID){
+    return BASE_PATH + TMP + jobID + '/';
+}
+
+function createTmpFolderForJob(jobPath) {
+    fs.mkdirSync(jobPath);
+}
+
+
+
+function extractResult(jobPath) {
 
     return new Promise(function (resolve, reject) {
-
             // unzip result
-            const resultAsZip = basePath + TMP + EPUB3;
+            const resultAsZip = jobPath + EPUB3;
             var zip = new AdmZip(resultAsZip);
-            zip.extractAllTo(basePath + TMP);
+            zip.extractAllTo(jobPath);
 
-            const epub = basePath + TMP + 'output-dir/daisy3.epub';
-            const zipFile = basePath + TMP + 'output-dir/daisy3.zip';
+            const epub = jobPath + 'output-dir/daisy3.epub';
+            const zipFile = jobPath + 'output-dir/daisy3.zip';
 
             fs.rename(epub, zipFile, function (err) {
 
@@ -204,7 +230,7 @@ function extractResult() {
 
                 // unzip epub
                 var zip = new AdmZip(zipFile);
-                zip.extractAllTo(basePath + TMP + 'epub/');
+                zip.extractAllTo(jobPath + 'epub/');
 
                 resolve('Result extracted.');
             });
@@ -213,6 +239,10 @@ function extractResult() {
     )
 }
 
+function getMD5Checksum($) {
+
+    return crypto.createHash('md5').update($.text()).digest("hex");
+}
 
 module.exports = TTSGenerator;
 
