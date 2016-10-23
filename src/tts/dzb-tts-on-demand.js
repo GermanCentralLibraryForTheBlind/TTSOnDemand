@@ -66,8 +66,9 @@ TTSGenerator.textToSpeech = function (page) {
         var $ = cheerio.load(page);
         const jobID = getMD5Checksum($);
         const jobPath = generateJobPath(jobID);
+
         if (fs.existsSync(jobPath))
-            resolve('todo: return path to job result');
+           return resolve({jobID: jobID});
 
         createTmpFolderForJob(jobPath);
         $ = normalizePage($, jobPath);
@@ -109,8 +110,8 @@ TTSGenerator.textToSpeech = function (page) {
 
         }).then(function (result) {
 
-            console.log(result);
-            resolve(result);
+            // console.log(result);
+            resolve({jobID: jobID});
 
         }).catch(function (err) {
             console.log(err);
@@ -195,21 +196,22 @@ function execCmd(cmd) {
 }
 
 function prepareTMPFolder() {
-   // rimraf.sync(TMP);
+    // rimraf.sync(TMP);
 
-    if (!fs.existsSync(BASE_PATH + TMP)){
+    if (!fs.existsSync(BASE_PATH + TMP)) {
         fs.mkdirSync(BASE_PATH + TMP);
     }
 }
 
-function generateJobPath(jobID){
+function generateJobPath(jobID) {
     return BASE_PATH + TMP + jobID + '/';
 }
 
 function createTmpFolderForJob(jobPath) {
+
+    rimraf.sync(jobPath);
     fs.mkdirSync(jobPath);
 }
-
 
 
 function extractResult(jobPath) {

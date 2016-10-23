@@ -1,22 +1,22 @@
 /* todo:
  [ ] verify that no content/structure of original page lost during injected smil tagged elements
- [ ] get the path to smil and new tagged content  dynamically
+ [X] get the path to smil and new tagged content  dynamically
  */
 
 const
     Backbone = require('backbone'),
     $ = require('jquery'),
-    uuid = require('node-uuid'),
+//uuid = require('node-uuid'),
     MediaOverlay = require('./media-overlay-js/media-overlay.js');
 
 Backbone.$ = $;
 require('./css/style.css');
 
-const host = 'http://' + window.location.host;
-
-const daisyFile = host + '/static/epub/EPUB/daisy3-2.xhtml';
-const smil = host + '/static/epub/EPUB/mo/daisy3-2.smil';
-const backend = host + '/tts';
+const HOST = 'http://' + window.location.host;
+const JOB_BASE_PATH = HOST + '/static/';
+const TAGGED_CONTENT = '/epub/EPUB/daisy3-2.xhtml';
+const SMIL = '/epub/EPUB/mo/daisy3-2.smil';
+const BACKEND = HOST + '/tts';
 
 var player;
 
@@ -36,8 +36,12 @@ $(document).ready(function () {
 
     $('html > head').append(styleTag);
 
+    var i = 0; // Unfortunately we can't use uuids because
+    // all clients need the same ids for current caching strategy.
     $('h1, h2, h3, h4, h5, p, span', $(config.content[0], config.content[1])).each(function () {
-        $(this).attr('id', 'ID' + uuid.v4()); //alternative will be jquery-ui uniqueId()
+        //$(this).attr('id', 'ID' + uuid.v4()); //alternative will be jquery-ui uniqueId()
+        $(this).attr('id', 'ID-TTS-' + i);
+        i++;
     });
 
     $("#" + config.btnRead).click(function (event) {
@@ -52,10 +56,11 @@ $(document).ready(function () {
         btn.addClass('sk-rotating-plane');
 
         const content = $(config.content[0], config.content[1]).html();
-        sendData(content).then(function (result) {
+        sendData(content).then(function (res) {
             btn.removeClass('sk-rotating-plane');
+            const result = JSON.parse(res.response);
             //console.log(result);
-            readContent();
+            readContent(result.jobID);
 
         }).catch(function (err) {
             btn.removeClass('sk-rotating-plane');
@@ -67,11 +72,11 @@ $(document).ready(function () {
 });
 
 
-function readContent() {
+function readContent(jobID) {
 
     const tts = $('<div>', {id: 'tts'});
 
-    tts.load(daisyFile, function (response, status, xhr) {
+    tts.load(JOB_BASE_PATH + jobID + TAGGED_CONTENT, function (response, status, xhr) {
 
         if (status == "error") {
             var msg = "Sorry but there is a problem: ";
@@ -99,10 +104,10 @@ function readContent() {
                     const idHeadline = $el.children('span.headline').attr('id');
                     const $headlineTmp = tts.find("#" + idHeadline);
 
-                    const $dachzeile =  $dachzeileTmp.children('span');
+                    const $dachzeile = $dachzeileTmp.children('span');
                     $dachzeile.addClass('dachzeile');
 
-                    const $headline =  $headlineTmp.children('span');
+                    const $headline = $headlineTmp.children('span');
                     $headline.addClass('headline');
 
                     $el.empty();
@@ -117,7 +122,7 @@ function readContent() {
         }).promise().done(function () {
 
 
-            var model = new MediaOverlay({"smil_url": smil});
+            var model = new MediaOverlay({"smil_url": JOB_BASE_PATH + jobID + SMIL});
 
             model.addSkipType("pagebreak");
             model.addSkipType("sidebar");
@@ -150,7 +155,7 @@ function sendData(data) {
             reject('Oups! Something goes wrong.');
         });
 
-        xhr.open('POST', backend);
+        xhr.open('POST', BACKEND);
         xhr.send(data);
     })
 }

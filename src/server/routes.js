@@ -28,11 +28,10 @@ var router = function (app) {
                 //console.info("received data: " +data);
                 generator.textToSpeech(data).then(function (result) {
                     //console.log(result);
-                    return res.send('All is alright!');
+                    return res.json(result);
 
                 }).catch(function (err) {
-                    console.log(err);
-                    return res.send('Nothing is alright! Something goes wrong.');
+                    return handleError(res, err, 'Nothing is alright! Something goes wrong.');
                 });
 
 
