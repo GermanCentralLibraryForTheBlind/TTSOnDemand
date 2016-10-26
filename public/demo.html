@@ -16,9 +16,11 @@
         html, body .jumbotron {
             background-color: #a89a7d;
         }
+
         .form-group {
             margin-right: 255px;
         }
+
         .content_sidebar {
             margin-right: 15em;
         }
@@ -46,25 +48,59 @@
         <div class="form-group">
             <label class="label label-primary" for="url">URL:</label>
             <input type="text" class="form-control" id="url"
-                   value = "http://www.mdr.de/sachsen/sperrung-hauptbahnhof-aufgehoben-100.html">
+                   value="http://www.mdr.de/sachsen/sperrung-hauptbahnhof-aufgehoben-100.html">
             //http://www.mdr.de/nachrichten/politik/regional/proteste-gegen-einheitsfeier-100.html
             //http://www.mdr.de/sachsen/dresden/frank-richter-stiftung-frauenkirche-100.html
         </div>
         <button id="btnLoadPage" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">
             Seite Laden
         </button>
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Artikel Auswahl
+                <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a href="#">HTML</a></li>
+                <li><a href="#">CSS</a></li>
+                <li><a href="#">JavaScript</a></li>
+            </ul>
+        </div>
         <div id="read"></div>
+        <iframe src="" width="10%" height="10%">
+        </iframe>
     </div>
 </div>
 
 <script>
+    $(document).ready(function () {
+        fillUpArticlesDropDown();
+    });
+
     const backend = 'http://' + window.location.host + '/injected';
     $("#btnLoadPage").click(function () {
         const href = $("#url").val();
-//alert('test');
         loadPage(backend, href);
 
     });
+
+
+    function fillUpArticlesDropDown() {
+//        $("iframe").attr("src", "http://www.mdr.de/sachsen/index.html");
+//        $("iframe").ready(function () {
+//
+//            
+//            var $iFrame = $('iframe').contents();
+//
+//            console.log($iFrame.find("body").html());
+//            console.log($iFrame.find("body").html());
+                    
+//                    .each(function (index) {
+//
+//                console.log(index + ": " + $(this).find('a').text());
+//
+//            });
+        });
+    }
+
     function loadPage(backend, href) {
         const xhr = new XMLHttpRequest();
 
