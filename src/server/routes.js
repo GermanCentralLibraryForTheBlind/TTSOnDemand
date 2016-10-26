@@ -1,3 +1,7 @@
+//TODO:
+// [ ] access control security token
+// [ ] session id
+
 const generator = require('./../tts/dzb-tts-on-demand.js'),
     cheerio = require('cheerio'),
     request = require('request'),
@@ -23,7 +27,7 @@ var router = function (app) {
             req.on('data', function (chunk) {
                 data += chunk;
             });
-// todo session id
+
             req.on('end', function () {
                 //console.info("received data: " +data);
                 generator.textToSpeech(data).then(function (result) {

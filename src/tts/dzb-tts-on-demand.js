@@ -15,29 +15,22 @@ const
 
 const TMP = 'tmp/',
     DAISY3 = 'daisy3.xml',
-    EPUB3 = 'dtbook-to-epub3.zip',
+    EPUB3 = 'result/',
     VOICE_CONFIG = 'etc/voice.xml',
     NORMALIZED_PAGE = 'normalized_page.html',
     XHTML_2_DTBOOK = 'scripts/create_distribute/dtbook/Xhtml2Dtbook.taskScript',
     DP1_CLI = 'pipeline.sh', // Daisy Pipeline 1
-    DP2_CLI = 'dp2';
+    BASE_PATH = path.resolve(__dirname) + '/../../',
+    PATH_DP1 = BASE_PATH + '../daisy_tools/pipeline-20111215/';
 
-//const HOST_DP2 = "'http://192.168.0.7'";
-
-var PATH_DP1 = '';
 var PATH_DP2_CLI = '';
+if (os.platform() == 'linux')
+    PATH_DP2_CLI = BASE_PATH + 'tools/linux_386/';
 
-if (os.platform() == 'linux') {
-    PATH_DP1 = '/home/alan/pipeline-20111215/';
-    PATH_DP2_CLI = '/home/alan/pipeline2-cli/';
-}
+if (os.platform() == 'darwin')
+    PATH_DP2_CLI = BASE_PATH + 'tools/darwin_amd64/';
 
-if (os.platform() == 'darwin') {
-    PATH_DP1 = '/Users/alan/workspace/daisy_tools/pipeline-20111215';
-    PATH_DP2_CLI = '/Users/alan/workspace/daisy_tools/pipeline2-cli';
-}
 
-const BASE_PATH = path.resolve(__dirname) + '/../../';
 
 const detailedLog = true;
 const TTSGenerator = {};
@@ -68,35 +61,34 @@ TTSGenerator.textToSpeech = function (page) {
         const jobPath = generateJobPath(jobID);
 
         if (fs.existsSync(jobPath))
-           return resolve({jobID: jobID});
+            return resolve({jobID: jobID});
 
         createTmpFolderForJob(jobPath);
         $ = normalizePage($, jobPath);
         saveNormalizedPage($, jobPath);
         //console.log($.html());
 
-        htmlToDaisy3(jobPath).then(function (result) {
+        htmlToDaisy3(jobPath).catch(function (err) {
+            // htmlToDaisy3
+            rimraf.sync(jobPath);
+            throw err;
 
-            if (result != null && result.stderr) {
-                console.log(result.stderr);
-            }
+        }).then(function (result) {
+
             if (result != null && result.stdout && detailedLog) {
-                console.log(result.stdout);
+                console.log("dp 1: \n" + result.stdout);
             }
-            //console.log(result);
             console.log("Xhtml to daisy ready!\n\n");
             return dtbookToEpub3(jobPath);
 
         }).catch(function (err) {
-            console.log(err);
-            reject(err);
-            // process.exit(1);
+            // dtbookToEpub3
+            rimraf.sync(jobPath);
+
+            throw err;
 
         }).then(function (result) {
 
-            if (result != null && result.stderr) {
-                console.log(result.stderr);
-            }
             if (result != null && result.stdout && detailedLog) {
                 console.log(result.stdout);
             }
@@ -104,19 +96,19 @@ TTSGenerator.textToSpeech = function (page) {
             return extractResult(jobPath);
 
         }).catch(function (err) {
-            console.log(err);
+            // extractResult
+            rimraf.sync(jobPath);
             reject(err);
-            //process.exit(1);
 
         }).then(function (result) {
 
             // console.log(result);
-            resolve({jobID: jobID});
+            // if(fs.accessSync(jobPath))
+            const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
+            if (!fs.existsSync(audioFile))
+                return reject('Job has no audio file!');
 
-        }).catch(function (err) {
-            console.log(err);
-            reject(err);
-            //process.exit(1);
+            resolve({jobID: jobID});
 
         });
     }); // promise end
@@ -159,14 +151,15 @@ function htmlToDaisy3(jobPath) {
 
 function dtbookToEpub3(jobPath) {
 
-    const input = ' --i-source ' + jobPath + DAISY3;
+    const input = ' --source ' + jobPath + DAISY3;
     const output = ' -o ' + jobPath + EPUB3;
-    const voiceConfig = ' --x-tts-config ' + BASE_PATH + VOICE_CONFIG;
-    const language = ' --x-language de ';
+    const voiceConfig = ' --tts-config ' + BASE_PATH + VOICE_CONFIG;
+    const language = ' --language de ';
     // const hostDP2 = '--host ' + HOST_DP2;
 
-    var cmd = 'cd ' + PATH_DP2_CLI + ' && ruby ' + DP2_CLI + ' ';
-    cmd += 'dtbook-to-epub3 --x-audio true' + voiceConfig;
+    var cmd = 'cd ' + PATH_DP2_CLI + ' && ./dp2  --starting true';
+    cmd += ' dtbook-to-epub3 --audio true';
+    cmd += voiceConfig;
     cmd += language;
     cmd += ' ' + input + output;
 
@@ -218,12 +211,9 @@ function extractResult(jobPath) {
 
     return new Promise(function (resolve, reject) {
             // unzip result
-            const resultAsZip = jobPath + EPUB3;
-            var zip = new AdmZip(resultAsZip);
-            zip.extractAllTo(jobPath);
-
-            const epub = jobPath + 'output-dir/daisy3.epub';
-            const zipFile = jobPath + 'output-dir/daisy3.zip';
+            const resultAsZip = jobPath + EPUB3 + 'output-dir/';
+            const epub = resultAsZip + 'daisy3.epub';
+            const zipFile = resultAsZip + 'daisy3.zip';
 
             fs.rename(epub, zipFile, function (err) {
 
@@ -233,6 +223,7 @@ function extractResult(jobPath) {
                 // unzip epub
                 var zip = new AdmZip(zipFile);
                 zip.extractAllTo(jobPath + 'epub/');
+                rimraf.sync(jobPath + EPUB3);
 
                 resolve('Result extracted.');
             });
