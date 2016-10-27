@@ -16,6 +16,9 @@ var router = function (app) {
         res.status(code || 500).json({"error": message});
     }
 
+    //***********************************************************
+    // this route will be used for audio generation
+    //***********************************************************
     app.post("/tts", function (req, res) {
 
         var data = '';
@@ -43,6 +46,10 @@ var router = function (app) {
         }
     });
 
+    //**********************************************************************************
+    // following routes only for testing
+    // should be later disabled
+    //**********************************************************************************
     app.get("/injected", function (req, res) {
 
         const href = req.query.href;
@@ -55,36 +62,63 @@ var router = function (app) {
             fs.writeFileSync(path.resolve(__dirname) + '/../../public/temp.html', page);
 
             res.send('ready');
-        })
+        });
+    });
 
+    app.get("/article/refs", function (req, res) {
+
+        getPage("http://www.mdr.de/sachsen/index.html", function (page) {
+
+            const $ = cheerio.load(page);
+            var refsToArticles = [];
+
+            $('.cssArticle').each(function (index) {
+
+                const dataId = $(this).attr('data-id');
+
+                if(dataId) {
+                   const href =  $(this).find('a').attr('href');
+                    var data = {};
+                    data.ID = dataId;
+                    data.href = href;
+                   // console.log(index + ": " + data.ID);
+                    // console.log("href : " + data.href);
+                    refsToArticles.push(data);
+                }
+            });
+
+            res.json(refsToArticles);
+        })
 
     });
 
 
-    function getPage(href, callback) {
+function getPage(href, callback) {
 
-        request(href, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                return callback(body);
-            }
-        })
-    }
+    request(href, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            return callback(body);
+        }
+    })
+}
 
-    function replacements(data) {
+function replacements(data) {
 
-        data = data.replace(/\/resources/g, 'http://www.mdr.de/resources');
-        data = data.replace(/\/administratives/g, 'http://www.mdr.de/administratives');
-        //data = data.replace(/src="/g, 'src="http://www.mdr.de');
-        data = data.replace(/urlScheme':'/g, 'urlScheme\':\'http://www.mdr.de');
+    data = data.replace(/\/resources/g, 'http://www.mdr.de/resources');
+    data = data.replace(/\/administratives/g, 'http://www.mdr.de/administratives');
+    //data = data.replace(/src="/g, 'src="http://www.mdr.de');
+    data = data.replace(/urlScheme':'/g, 'urlScheme\':\'http://www.mdr.de');
 
-        return data;
-    }
+    return data;
+}
 
-    function inject(page) {
-        const $ = cheerio.load(page);
-        $('body').append($('<script src="bundle.js"></script>'));
-        return $.html();
-    }
+function inject(page) {
+    const $ = cheerio.load(page);
+    $('body').append($('<script src="bundle.js"></script>'));
+    return $.html();
+}
+
+
 };
 
 module.exports = router;

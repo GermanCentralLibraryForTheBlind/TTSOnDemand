@@ -40,10 +40,10 @@ const TTSGenerator = {};
  [X] own module for normalize
  [X] own folder per job with unique id
  [X] caching: synthesize only on the first time
- [ ] start dp2 via client
+ [X] start dp2 via client
  [ ] proper logging strategy
  [ ] config file
- [ ] test if the dp2 service is running
+ [ ] test if the dp2 service state is fine and or fix the it to the correct working state
  [ ] find a way to get the uncompressed epub content direct!
  [ ] strategy how long job data have in store until it will be deleted
  */
@@ -238,30 +238,6 @@ function getMD5Checksum($) {
 }
 
 module.exports = TTSGenerator;
-
-//function getPage(options, callback) {
-//
-//    const req = http.request(options, function (res) {
-//
-//        res.setEncoding('utf8');
-//
-//        var output = '';
-//        res.on("data", function (chunk) {
-//            output += chunk;
-//        });
-//
-//        res.on('end', function () {
-//            return callback(output);
-//        });
-//    });
-//
-//    req.on('error', function (err) {
-//        console.log(err);
-//        process.exit(1);
-//    });
-//
-//    req.end();
-//}
 
 
 // return cached

@@ -44,29 +44,11 @@
                 <img alt="Brand" src="experiment.svg" width="200" height="150">
             </a>
         </h1>
-
-        <div class="form-group">
-            <label class="label label-primary" for="url">URL:</label>
-            <input type="text" class="form-control" id="url"
-                   value="http://www.mdr.de/sachsen/sperrung-hauptbahnhof-aufgehoben-100.html">
-            //http://www.mdr.de/nachrichten/politik/regional/proteste-gegen-einheitsfeier-100.html
-            //http://www.mdr.de/sachsen/dresden/frank-richter-stiftung-frauenkirche-100.html
-        </div>
-        <button id="btnLoadPage" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">
-            Seite Laden
-        </button>
         <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Artikel Auswahl
                 <span class="caret"></span></button>
-            <ul class="dropdown-menu">
-                <li><a href="#">HTML</a></li>
-                <li><a href="#">CSS</a></li>
-                <li><a href="#">JavaScript</a></li>
-            </ul>
         </div>
         <div id="read"></div>
-        <iframe src="" width="10%" height="10%">
-        </iframe>
     </div>
 </div>
 
@@ -75,29 +57,28 @@
         fillUpArticlesDropDown();
     });
 
-    const backend = 'http://' + window.location.host + '/injected';
-    $("#btnLoadPage").click(function () {
-        const href = $("#url").val();
-        loadPage(backend, href);
-
-    });
-
 
     function fillUpArticlesDropDown() {
-//        $("iframe").attr("src", "http://www.mdr.de/sachsen/index.html");
-//        $("iframe").ready(function () {
-//
-//            
-//            var $iFrame = $('iframe').contents();
-//
-//            console.log($iFrame.find("body").html());
-//            console.log($iFrame.find("body").html());
-                    
-//                    .each(function (index) {
-//
-//                console.log(index + ": " + $(this).find('a').text());
-//
-//            });
+
+        $.getJSON('http://' + window.location.host + '/article/refs', function( data ) {
+            var items = [];
+            $.each(data, function( key, val ) {
+                items.push( "<li><a href='" + val.href + "'>" + val.ID + "</a></li>" );
+            });
+
+            $( "<ul/>", {
+                "class": "dropdown-menu",
+                html: items.join( "" )
+            }).appendTo('.dropdown');
+
+            const backend = 'http://' + window.location.host + '/injected';
+            $('a').click(function (event) {
+                const href = 'http://www.mdr.de' + $(this).attr('href');
+                loadPage(backend, href);
+                event.preventDefault();
+                return false;
+
+            });
         });
     }
 
