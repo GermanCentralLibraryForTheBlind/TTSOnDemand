@@ -1,3 +1,7 @@
+client make curios things?
+
+is bundle uptodate -> npm run build-bundle
+
 daisy pipeline 2 No 'class' in configuration for px:inline-css
 
 - delete jobs

@@ -1,7 +1,10 @@
 const express = require('express'),
     bodyParser = require('body-parser'),
     cors = require('cors'),
-    path = require('path');
+    path = require('path'),
+    fs = require('fs'),
+    morgan = require('morgan');
+
 const app = express();
 const tmp = path.join(__dirname, '../../tmp');
 const publicFolder = path.join(__dirname, '../../public');
@@ -13,6 +16,12 @@ app.use('/public', express.static(publicFolder));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+
+// access logger
+const accessLogStream = fs.createWriteStream(__dirname + '/../../logs/access.log', {flags: 'a'});
+app.use(morgan('combined', {stream: accessLogStream}))
+
+
 require("./routes.js")(app);
 
 
@@ -21,3 +30,4 @@ const server = app.listen(process.env.PORT || 3000, function () {
     const  port = server.address().port;
     console.log('Service is listening at http://%s:%s', host, port);
 });
+
