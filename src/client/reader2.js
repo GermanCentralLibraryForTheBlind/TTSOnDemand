@@ -80,7 +80,8 @@ function readContent(jobID) {
 
         if (status == "error") {
             var msg = "Sorry but there is a problem: ";
-            console.log(msg + xhr.status + " " + xhr.statusText);
+            console.error(msg + xhr.status + " " + xhr.statusText);
+            console.error(response);
             return;
         }
 
@@ -89,23 +90,22 @@ function readContent(jobID) {
             const $el = $(this);
             const id = $el.attr('id');
 
-            const ttsCounterpart = tts.find("#" + id);
-            if (!$.isEmptyObject(ttsCounterpart)) {
+//************************************************************************************
+            if ($el.children('span').hasClass('dachzeile')) {
 
-                if ($el.children('span').hasClass('dachzeile')) {
+                console.log("el " + $el.html());
+                //console.log("ttsCounterpart " + ttsCounterpart.html());
 
-                    console.log("el " + $el.html());
-                    //console.log("ttsCounterpart " + ttsCounterpart.html());
-
-                    // ugly hack urggg
-                    const idDachzeile = $el.children('span.dachzeile').attr('id');
-                    const $dachzeileTmp = tts.find("#" + idDachzeile);
+                // ugly hack urggg
+                const idDachzeile = $el.children('span.dachzeile').attr('id');
+                const $dachzeileTmp = tts.find("#" + idDachzeile);
+               
+                if ($dachzeileTmp.length > 0) {
+                    const $dachzeile = $dachzeileTmp.children('span');
+                    $dachzeile.addClass('dachzeile');
 
                     const idHeadline = $el.children('span.headline').attr('id');
                     const $headlineTmp = tts.find("#" + idHeadline);
-
-                    const $dachzeile = $dachzeileTmp.children('span');
-                    $dachzeile.addClass('dachzeile');
 
                     const $headline = $headlineTmp.children('span');
                     $headline.addClass('headline');
@@ -114,10 +114,16 @@ function readContent(jobID) {
 
                     $dachzeile.appendTo($el);
                     $headline.appendTo($el);
-                }
-                else
-                    $el.replaceWith(ttsCounterpart);
+                } else
+                    console.error('Element with class dachzeile doesnt exists???')
+                
             }
+//*************************************************************************************            
+            const ttsCounterpart = tts.find("#" + id);
+            if (ttsCounterpart.length > 0)
+                $el.replaceWith(ttsCounterpart);
+            else
+                console.log('Element ' + id + ' doesnt exists???')
 
         }).promise().done(function () {
 
