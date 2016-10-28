@@ -6,6 +6,8 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     cheerio = require('cheerio'),
     request = require('request'),
     path = require("path"),
+    http = require("http"),
+    url = require('url'),
     fs = require('fs');
 
 var router = function (app) {
@@ -24,7 +26,9 @@ var router = function (app) {
         var data = '';
 
         if (req.method === 'POST') {
-            console.info('post');
+            
+            console.info('post from ' + fullUrl(req));
+            
             req.setEncoding('utf8');
 
             req.on('data', function (chunk) {
@@ -67,7 +71,63 @@ var router = function (app) {
 
     app.get("/article/refs", function (req, res) {
 
-        getPage("http://www.mdr.de/sachsen/index.html", function (page) {
+        getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
+            res.json(refsToArticles);
+        })
+    });
+
+    app.get("/all/articles/tts", function (req, res) {
+
+        const config = {content: ['.sectionWrapperMain', '#content']};
+
+        getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
+
+            refsToArticles.forEach(function (item) {
+
+                const href = 'http://www.mdr.de' + item.href;
+                console.log('Try to load: ' + href);
+
+                getPage(href, function (page) {
+
+                    console.log('article page loaded');
+                    const $ = cheerio.load(page);
+
+                    var i = 0;
+                    $('h1, h2, h3, h4, h5, p, span', $(config.content[0], config.content[1])).each(function () {
+                        $(this).attr('id', 'ID-TTS-' + i);
+                        i++;
+                    });
+                    const content = $(config.content[0], config.content[1]).html();
+
+                    var options = {
+                        host: 'localhost',
+                        port: '3000',
+                        path: '/tts',
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/xhtml+xml',
+                            'Content-Length': Buffer.byteLength(content)
+                        }
+                    };
+
+                    var req = http.request(options, function (res) {
+
+                    });
+
+                    // post the data
+                    req.write(content);
+                    req.end();
+
+                });
+            })
+        });
+        res.send('Start caching!');
+    });
+
+
+    function getArticleRefs(mainPage, callback) {
+
+        getPage(mainPage, function (page) {
 
             const $ = cheerio.load(page);
             var refsToArticles = [];
@@ -76,47 +136,53 @@ var router = function (app) {
 
                 const dataId = $(this).attr('data-id');
 
-                if(dataId) {
-                   const href =  $(this).find('a').attr('href');
+                if (dataId) {
+                    const href = $(this).find('a').attr('href');
                     var data = {};
                     data.ID = dataId;
                     data.href = href;
-                   // console.log(index + ": " + data.ID);
+                    // console.log(index + ": " + data.ID);
                     // console.log("href : " + data.href);
                     refsToArticles.push(data);
                 }
             });
 
-            res.json(refsToArticles);
+            callback(refsToArticles);
         })
+    }
 
-    });
+    function getPage(href, callback) {
 
+        request(href, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                return callback(body);
+            }
+        })
+    }
 
-function getPage(href, callback) {
+    function replacements(data) {
 
-    request(href, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            return callback(body);
-        }
-    })
-}
+        data = data.replace(/\/resources/g, 'http://www.mdr.de/resources');
+        data = data.replace(/\/administratives/g, 'http://www.mdr.de/administratives');
+        //data = data.replace(/src="/g, 'src="http://www.mdr.de');
+        data = data.replace(/urlScheme':'/g, 'urlScheme\':\'http://www.mdr.de');
 
-function replacements(data) {
+        return data;
+    }
 
-    data = data.replace(/\/resources/g, 'http://www.mdr.de/resources');
-    data = data.replace(/\/administratives/g, 'http://www.mdr.de/administratives');
-    //data = data.replace(/src="/g, 'src="http://www.mdr.de');
-    data = data.replace(/urlScheme':'/g, 'urlScheme\':\'http://www.mdr.de');
+    function inject(page) {
+        const $ = cheerio.load(page);
+        $('body').append($('<script src="bundle.js"></script>'));
+        return $.html();
+    }
 
-    return data;
-}
-
-function inject(page) {
-    const $ = cheerio.load(page);
-    $('body').append($('<script src="bundle.js"></script>'));
-    return $.html();
-}
+    function fullUrl(req) {
+        return url.format({
+            protocol: req.protocol,
+            hostname: req.hostname,
+            pathname: req.originalUrl
+        });
+    }
 
 
 };

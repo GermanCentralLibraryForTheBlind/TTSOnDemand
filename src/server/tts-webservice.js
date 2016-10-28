@@ -5,6 +5,8 @@ const express = require('express'),
     fs = require('fs'),
     morgan = require('morgan');
 
+process.env['NO_PROXY'] = 'localhost';
+
 const app = express();
 const tmp = path.join(__dirname, '../../tmp');
 const publicFolder = path.join(__dirname, '../../public');

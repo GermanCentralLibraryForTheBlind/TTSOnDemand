@@ -1,6 +1,8 @@
-client make curios things?
+dp2 won't come up 
+- Delete the this key? Shutting down the framework because of:/tmp/dp2key.txt (Keine Berechtigung) 
 
-is bundle uptodate -> npm run build-bundle
+client make curios things?
+- is bundle uptodate -> npm run build-bundle
 
 daisy pipeline 2 No 'class' in configuration for px:inline-css
 
