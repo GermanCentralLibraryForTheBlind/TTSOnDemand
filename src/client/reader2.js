@@ -52,25 +52,43 @@ $(document).ready(function () {
         }
 
         const btn = $(event.currentTarget);
-
         btn.addClass('sk-rotating-plane');
 
-        const content = $(config.content[0], config.content[1]).html();
-        sendData(content).then(function (res) {
-            btn.removeClass('sk-rotating-plane');
-            const result = JSON.parse(res.response);
-            //console.log(result);
-            readContent(result.jobID);
+        //       const content = $(config.content[0], config.content[1]).html();
+        const $content = $(config.content[0], config.content[1])
 
-        }).catch(function (err) {
-            btn.removeClass('sk-rotating-plane');
-            console.log(err);
+        $content.each(function (index) {
+
+            if (containsTextNode($(this)))
+                console.log(index + ": " + $(this).prop("tagName") + ' : ' + $(this).text());
         });
+
+        //
+        //sendData(content).then(function (res) {
+        //    btn.removeClass('sk-rotating-plane');
+        //    const result = JSON.parse(res.response);
+        //    //console.log(result);
+        //    readContent(result.jobID);
+        //
+        //}).catch(function (err) {
+        //    btn.removeClass('sk-rotating-plane');
+        //    console.log(err);
+        //});
 
     });
     console.log("ready!");
 });
 
+
+function containsTextNode($element) {
+
+    const childNodes = $element[0].childNodes;
+
+    for (var i = 0; i < childNodes.length; i++)
+        if (childNodes[i].nodeType === Node.TEXT_NODE &&  !(/^\s+$/.test(childNodes[i].nodeValue)))
+            return true;
+    return false;
+}
 
 function readContent(jobID) {
 
