@@ -14,7 +14,7 @@ var router = function (app) {
 
     // Generic error handler used by all endpoints.
     function handleError(res, reason, message, code) {
-        console.log("ERROR: " + reason);
+        console.log("[ERROR] " + reason);
         res.status(code || 500).json({"error": message});
     }
 
@@ -26,9 +26,9 @@ var router = function (app) {
         var data = '';
 
         if (req.method === 'POST') {
-            
-            console.info('post from ' + fullUrl(req));
-            
+
+            console.info('[INFO] POST request  from ' + fullUrl(req));
+
             req.setEncoding('utf8');
 
             req.on('data', function (chunk) {
@@ -57,7 +57,9 @@ var router = function (app) {
     app.get("/injected", function (req, res) {
 
         const href = req.query.href;
-        console.log(href);
+
+        //console.log(href);
+
         getPage(href, function (page) {
 
             page = replacements(page);
@@ -73,7 +75,7 @@ var router = function (app) {
 
         getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
             res.json(refsToArticles);
-        })
+        });
     });
 
     app.get("/all/articles/tts", function (req, res) {
@@ -85,11 +87,11 @@ var router = function (app) {
             refsToArticles.forEach(function (item) {
 
                 const href = 'http://www.mdr.de' + item.href;
-                console.log('Try to load: ' + href);
+                console.log('[INFO] Try to load: ' + href);
 
                 getPage(href, function (page) {
 
-                    console.log('article page loaded');
+                    console.log('[INFO] Article from ' + href + ' loaded');
                     const $ = cheerio.load(page);
 
                     var i = 0;
@@ -105,25 +107,33 @@ var router = function (app) {
                         path: '/tts',
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/xhtml+xml',
-                            'Content-Length': Buffer.byteLength(content)
+                            'Content-Type': 'application/xhtml+xml'
                         }
                     };
 
                     var req = http.request(options, function (res) {
 
+                        res.on('end', function () {
+                            console.log('[INFO] End POST request :' + href);
+                        });
+
                     });
 
+                    req.setTimeout(3000);
+                    req.on('error', function (err) {
+                        console.log('[ERROR]  ', err);
+                    });
                     // post the data
                     req.write(content);
                     req.end();
 
-                });
-            })
-        });
-        res.send('Start caching!');
-    });
 
+                });
+            });
+            res.send('Start caching!');
+        });
+
+    });
 
     function getArticleRefs(mainPage, callback) {
 
@@ -148,7 +158,7 @@ var router = function (app) {
             });
 
             callback(refsToArticles);
-        })
+        });
     }
 
     function getPage(href, callback) {
@@ -157,7 +167,7 @@ var router = function (app) {
             if (!error && response.statusCode == 200) {
                 return callback(body);
             }
-        })
+        });
     }
 
     function replacements(data) {
@@ -183,8 +193,6 @@ var router = function (app) {
             pathname: req.originalUrl
         });
     }
-
-
 };
 
 module.exports = router;
