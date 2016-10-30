@@ -31,8 +31,7 @@ if (os.platform() == 'darwin')
     PATH_DP2_CLI = BASE_PATH + 'tools/darwin_amd64/';
 
 
-
-const detailedLog = true;
+const detailedLog = false;
 const TTSGenerator = {};
 
 
@@ -60,12 +59,15 @@ TTSGenerator.textToSpeech = function (page) {
         const jobID = getMD5Checksum($);
         const jobPath = generateJobPath(jobID);
 
-        if (fs.existsSync(jobPath))
+        if (fs.existsSync(jobPath)) {
+            console.log("[INFO] Nothing to do -> Job " + jobID + " is cached.");
             return resolve({jobID: jobID});
+        }
 
         createTmpFolderForJob(jobPath);
         $ = normalizePage($, jobPath);
         saveNormalizedPage($, jobPath);
+        console.log("[INFO] Write normalized page for job " + jobID + " ready.");
         //console.log($.html());
 
         htmlToDaisy3(jobPath).catch(function (err) {
@@ -78,7 +80,7 @@ TTSGenerator.textToSpeech = function (page) {
             if (result != null && result.stdout && detailedLog) {
                 console.log("dp 1: \n" + result.stdout);
             }
-            console.log("Xhtml to daisy ready!\n\n");
+            console.log("[INFO] DP1 -> Xhtml to daisy for job " + jobID + " ready.");
             return dtbookToEpub3(jobPath);
 
         }).catch(function (err) {
@@ -92,7 +94,7 @@ TTSGenerator.textToSpeech = function (page) {
             if (result != null && result.stdout && detailedLog) {
                 console.log(result.stdout);
             }
-            console.log("Dtbook to epub3 ready!");
+            console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
             return extractResult(jobPath);
 
         }).catch(function (err) {
@@ -118,9 +120,9 @@ TTSGenerator.textToSpeech = function (page) {
 function normalizePage($, jobPath) {
 
     // todo normalizer configurable
-    fs.writeFileSync(jobPath + 'before_normalize.html', $.html());
+    //  fs.writeFileSync(jobPath + 'before_normalize.html', $.html());
     const $result = InputNormalizers.MdrNormalizer($);
-    fs.writeFileSync(jobPath + 'after_normalize.html', $result.html());
+    //  fs.writeFileSync(jobPath + 'after_normalize.html', $result.html());
 
     return $result;
 }
@@ -135,7 +137,6 @@ function saveNormalizedPage($data, jobPath) {
     $('body').append($data.html());
 
     fs.writeFileSync(jobPath + NORMALIZED_PAGE, $.html());
-    console.log("Write normalized page! \n\n ");
 }
 
 
@@ -176,16 +177,19 @@ function execCmd(cmd) {
 
         exec(cmd, function (error, stdout, stderr) {
 
-            if (error) {
-                reject(stdout); // raise exception???
+            if (detailedLog)
+                console.log("[DEBUG] :  " + stdout);
+
+            if (stdout.indexOf('Exception') > -1) {
+                reject('Error exec ' + cmd);
             } else {
                 resolve({
                     stdout: stdout,
                     stderr: stderr
                 });
             }
-        })
-    })
+        });
+    });
 }
 
 function prepareTMPFolder() {
@@ -218,7 +222,7 @@ function extractResult(jobPath) {
             fs.rename(epub, zipFile, function (err) {
 
                 if (err)
-                    reject('Unzip: ' + err);
+                    return reject('Unzip: ' + err);
 
                 // unzip epub
                 var zip = new AdmZip(zipFile);
@@ -229,7 +233,7 @@ function extractResult(jobPath) {
             });
 
         }
-    )
+    );
 }
 
 function getMD5Checksum($) {
@@ -238,27 +242,3 @@ function getMD5Checksum($) {
 }
 
 module.exports = TTSGenerator;
-
-
-// return cached
-//var userCache = {};
-//
-//function getUserDetail(username) {
-//    // In both cases, cached or not, a promise will be returned
-//
-//    if (userCache[username]) {
-//        // Return a promise without the "new" keyword
-//        return Promise.resolve(userCache[username]);
-//    }
-//
-//    // Use the fetch API to get the information
-//    // fetch returns a promise
-//    return fetch('users/' + username + '.json')
-//        .then(function(result) {
-//            userCache[username] = result;
-//            return result;
-//        })
-//        .catch(function() {
-//            throw new Error('Could not find user: ' + username);
-//        });
-//}
