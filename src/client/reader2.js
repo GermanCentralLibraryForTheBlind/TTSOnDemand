@@ -32,21 +32,11 @@ $(document).ready(function () {
     const styleTag = $('<style>.highlight { background-color: #ffcb59; } </style>')
     const btnRead = $('<button id="' + config.btnRead + '" type="button">Vorlesen </button>');
     $(config.addButtonTo).append(btnRead);
-
-
     $('html > head').append(styleTag);
-
-    var i = 0; // Unfortunately we can't use uuids because
-    // all clients need the same ids for current caching strategy.
-    $('h1, h2, h3, h4, h5, p, span', $(config.content[0], config.content[1])).each(function () {
-        //$(this).attr('id', 'ID' + uuid.v4()); //alternative will be jquery-ui uniqueId()
-        $(this).attr('id', 'ID-TTS-' + i);
-        i++;
-    });
 
     $("#" + config.btnRead).click(function (event) {
 
-        if (player != null && player.isLoaded()) {
+        if (player && player.isLoaded()) {
             player.playpause();
             return;
         }
@@ -54,26 +44,51 @@ $(document).ready(function () {
         const btn = $(event.currentTarget);
         btn.addClass('sk-rotating-plane');
 
-        //       const content = $(config.content[0], config.content[1]).html();
         const $content = $(config.content[0], config.content[1])
+        const $normalizedContent = $('<div>');
+        var i = 0;
 
-        $content.each(function (index) {
+        const ignore = ['noscript'];
 
-            if (containsTextNode($(this)))
-                console.log(index + ": " + $(this).prop("tagName") + ' : ' + $(this).text());
+        $content.find("*").each(function () {
+
+            var $this = $(this);
+
+            if($this.attr('id') === config.btnRead) {
+                // ignore our read button
+                return;
+            }
+
+            if (containsTextNode($this)) {
+                //console.log($this.prop("tagName") + ' : ' + $this.html());
+
+                //************************** user specific *********************************
+                if (ignore[0] === $this.prop("tagName").toLowerCase())
+                    return;
+                if ($this.hasClass("hidden"))
+                    return;
+                //**************************************************************************
+
+                var $p = $('<p>');
+                var $clonedThis = $this.clone();
+                $this.attr('id', 'ID-TTS-' + i);
+                $p.attr('id', 'ID-TTS-' + i);
+                $p.append($clonedThis.contents());
+                $normalizedContent.append($p);
+                i++;
+            }
         });
 
-        //
-        //sendData(content).then(function (res) {
-        //    btn.removeClass('sk-rotating-plane');
-        //    const result = JSON.parse(res.response);
-        //    //console.log(result);
-        //    readContent(result.jobID);
-        //
-        //}).catch(function (err) {
-        //    btn.removeClass('sk-rotating-plane');
-        //    console.log(err);
-        //});
+        sendData($normalizedContent.html()).then(function (res) {
+            btn.removeClass('sk-rotating-plane');
+            const result = JSON.parse(res.response);
+            //console.log(result);
+            readContent(result.jobID);
+
+        }).catch(function (err) {
+            btn.removeClass('sk-rotating-plane');
+            console.log(err);
+        });
 
     });
     console.log("ready!");
@@ -84,9 +99,11 @@ function containsTextNode($element) {
 
     const childNodes = $element[0].childNodes;
 
-    for (var i = 0; i < childNodes.length; i++)
-        if (childNodes[i].nodeType === Node.TEXT_NODE &&  !(/^\s+$/.test(childNodes[i].nodeValue)))
+    for (var i = 0; i < childNodes.length; i++) {
+
+        if (childNodes[i].nodeType === Node.TEXT_NODE && !(/^\s+$/.test(childNodes[i].nodeValue)))
             return true;
+    }
     return false;
 }
 
@@ -103,45 +120,19 @@ function readContent(jobID) {
             return;
         }
 
-        $('h1, h2, h3, h4, h5, p', $(config.content[0], config.content[1])).each(function () {
+        $(config.content[0], config.content[1]).find('*').each(function () {
 
             const $el = $(this);
             const id = $el.attr('id');
 
-//************************************************************************************
-            if ($el.children('span').hasClass('dachzeile')) {
-
-                console.log("el " + $el.html());
-                //console.log("ttsCounterpart " + ttsCounterpart.html());
-
-                // ugly hack urggg
-                const idDachzeile = $el.children('span.dachzeile').attr('id');
-                const $dachzeileTmp = tts.find("#" + idDachzeile);
-               
-                if ($dachzeileTmp.length > 0) {
-                    const $dachzeile = $dachzeileTmp.children('span');
-                    $dachzeile.addClass('dachzeile');
-
-                    const idHeadline = $el.children('span.headline').attr('id');
-                    const $headlineTmp = tts.find("#" + idHeadline);
-
-                    const $headline = $headlineTmp.children('span');
-                    $headline.addClass('headline');
-
-                    $el.empty();
-
-                    $dachzeile.appendTo($el);
-                    $headline.appendTo($el);
-                } else
-                    console.error('Element with class dachzeile doesnt exists???')
-                
-            }
-//*************************************************************************************            
             const ttsCounterpart = tts.find("#" + id);
-            if (ttsCounterpart.length > 0)
-                $el.replaceWith(ttsCounterpart);
+            if (ttsCounterpart.length > 0) {
+
+                $el.empty();
+                $el.append(ttsCounterpart.contents());
+            }
             else
-                console.log('Element ' + id + ' doesnt exists???')
+                console.log('Element ' + id + ' doesnt exists???');
 
         }).promise().done(function () {
 
