@@ -1,14 +1,15 @@
 /**
  * Created by lars voigt on 09.08.16.
  */
+
 const
     fs = require('fs'),
     cheerio = require('cheerio'),
     path = require("path"),
-    rimraf = require('rimraf'),
     AdmZip = require('adm-zip'),
     os = require('os'),
     crypto = require('crypto'),
+    fsExtra = require('fs-extra'),
     exec = require('child_process').exec;
 
 
@@ -77,7 +78,11 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
         }).catch(function (err) {
             // extractResult
-            rimraf.sync(jobPath);
+            fsExtra.move(jobPath, BASE_PATH + 'error', function (err) {
+                if (err)
+                    return console.error(err)
+               // console.log("success!")
+            });
             reject(err);
 
         }).then(function (result) {
@@ -85,9 +90,16 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
             // console.log(result);
             // if(fs.accessSync(jobPath))
             const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
-            if (!fs.existsSync(audioFile))
-                return reject('Job has no audio file!');
+            if (!fs.existsSync(audioFile)) {
 
+                fsExtra.move(jobPath, BASE_PATH + 'error', { clobber: true }, function (err) {
+                    if (err)
+                        return console.error(err)
+                    // console.log("success!")
+                });
+
+                return reject('Job has no audio file!');
+            }
             resolve({jobID: jobID});
 
         });
@@ -175,7 +187,7 @@ function generateJobPath(jobID) {
 
 function createTmpFolderForJob(jobPath) {
 
-    rimraf.sync(jobPath);
+    fsExtra.removeSync(jobPath);
     fs.mkdirSync(jobPath);
 }
 
@@ -196,7 +208,7 @@ function extractResult(jobPath) {
                 // unzip epub
                 var zip = new AdmZip(zipFile);
                 zip.extractAllTo(jobPath + 'epub/');
-                rimraf.sync(jobPath + EPUB3);
+                fsExtra.removeSync(jobPath + EPUB3);
 
                 resolve('Result extracted.');
             });

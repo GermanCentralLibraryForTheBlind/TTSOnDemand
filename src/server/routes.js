@@ -8,7 +8,8 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     path = require("path"),
     http = require("http"),
     url = require('url'),
-    fs = require('fs');
+    fs = require('fs'),
+    SiteFilter = require('./../client/site-filter');
 
 var router = function (app) {
 
@@ -84,6 +85,8 @@ var router = function (app) {
 
         getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
 
+            console.log('[INFO] Found ' + refsToArticles.length + ' article refs');
+
             refsToArticles.forEach(function (item) {
 
                 const href = 'http://www.mdr.de' + item.href;
@@ -93,13 +96,10 @@ var router = function (app) {
 
                     console.log('[INFO] Article from ' + href + ' loaded');
                     const $ = cheerio.load(page);
+                    const $content = $(config.content[0], config.content[1]);
+                    SiteFilter.$ = cheerio;
 
-                    var i = 0;
-                    $('h1, h2, h3, h4, h5, p, span', $(config.content[0], config.content[1])).each(function () {
-                        $(this).attr('id', 'ID-TTS-' + i);
-                        i++;
-                    });
-                    const content = $(config.content[0], config.content[1]).html();
+                    const $normalizedContent = SiteFilter.skip($content);
 
                     var options = {
                         host: 'localhost',
@@ -124,7 +124,7 @@ var router = function (app) {
                         console.log('[ERROR]  ', err);
                     });
                     // post the data
-                    req.write(content);
+                    req.write($normalizedContent.html());
                     req.end();
 
 

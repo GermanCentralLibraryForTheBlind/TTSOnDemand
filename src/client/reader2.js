@@ -7,9 +7,11 @@ const
     Backbone = require('backbone'),
     $ = require('jquery'),
 //uuid = require('node-uuid'),
-    MediaOverlay = require('./media-overlay-js/media-overlay.js');
+    MediaOverlay = require('./media-overlay-js/media-overlay.js'),
+    SiteFilter = require('./site-filter');
 
 Backbone.$ = $;
+SiteFilter.$ = $;
 require('./css/style.css');
 
 const HOST = 'http://' + window.location.host;
@@ -45,39 +47,7 @@ $(document).ready(function () {
         btn.addClass('sk-rotating-plane');
 
         const $content = $(config.content[0], config.content[1])
-        const $normalizedContent = $('<div>');
-        var i = 0;
-
-        const ignore = ['noscript'];
-
-        $content.find("*").each(function () {
-
-            var $this = $(this);
-
-            if($this.attr('id') === config.btnRead) {
-                // ignore our read button
-                return;
-            }
-
-            if (containsTextNode($this)) {
-                //console.log($this.prop("tagName") + ' : ' + $this.html());
-
-                //************************** user specific *********************************
-                if (ignore[0] === $this.prop("tagName").toLowerCase())
-                    return;
-                if ($this.hasClass("hidden"))
-                    return;
-                //**************************************************************************
-
-                var $p = $('<p>');
-                var $clonedThis = $this.clone();
-                $this.attr('id', 'ID-TTS-' + i);
-                $p.attr('id', 'ID-TTS-' + i);
-                $p.append($clonedThis.contents());
-                $normalizedContent.append($p);
-                i++;
-            }
-        });
+        const $normalizedContent = SiteFilter.skip($content);
 
         sendData($normalizedContent.html()).then(function (res) {
             btn.removeClass('sk-rotating-plane');
@@ -94,26 +64,13 @@ $(document).ready(function () {
     console.log("ready!");
 });
 
-
-function containsTextNode($element) {
-
-    const childNodes = $element[0].childNodes;
-
-    for (var i = 0; i < childNodes.length; i++) {
-
-        if (childNodes[i].nodeType === Node.TEXT_NODE && !(/^\s+$/.test(childNodes[i].nodeValue)))
-            return true;
-    }
-    return false;
-}
-
 function readContent(jobID) {
 
     const tts = $('<div>', {id: 'tts'});
 
     tts.load(JOB_BASE_PATH + jobID + TAGGED_CONTENT, function (response, status, xhr) {
 
-        if (status == "error") {
+        if (status === "error") {
             var msg = "Sorry but there is a problem: ";
             console.error(msg + xhr.status + " " + xhr.statusText);
             console.error(response);
