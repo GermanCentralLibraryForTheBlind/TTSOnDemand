@@ -32,15 +32,18 @@
   "scripts": {
     "tts-webservice": "node src/server/tts-webservice.js",
     "webservice-test": "src/server/test/test-tts-webservice.js",
-    "build-bundle": "node_modules/.bin/browserify -t cssify src/client/reader2.js > public/bundle.js"
+    "build-bundle": "node_modules/.bin/browserify -t node-lessify -t brfs  src/client/reader2.js > public/bundle.js && node_modules/.bin/browserify -t node-lessify -t brfs  -t uglifyify src/client/reader2.js > public/bundle-prod.js"
   },
   "devDependencies": {
     "backbone": "^1.3.3",
+    "brfs": "^1.4.3",
     "browserify": "^13.1.0",
     "browserify-shim": "^3.8.12",
     "cssify": "^1.0.3",
     "jquery": "^3.1.0",
     "node-uuid": "^1.4.7",
-    "standard": "^8.0.0"
+    "standard": "^8.0.0",
+    "uglifyify": "^3.0.4",
+    "watchify": "^3.7.0"
   }
 }

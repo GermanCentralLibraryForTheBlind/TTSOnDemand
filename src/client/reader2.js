@@ -4,22 +4,24 @@
  */
 
 const
-    Backbone = require('backbone'),
     $ = require('jquery'),
-//uuid = require('node-uuid'),
+    Backbone = require('backbone'),
+    SiteFilter = require('./site-filter'),
     MediaOverlay = require('./media-overlay-js/media-overlay.js'),
-    SiteFilter = require('./site-filter');
+    fs = require('fs');
 
 Backbone.$ = $;
 SiteFilter.$ = $;
 require('./css/style.css');
 
-const HOST = 'http://' + window.location.host;
-const JOB_BASE_PATH = HOST + '/static/';
+const HOST_TTS_SERVICE = getPathOfTTSService();
+const JOB_BASE_PATH = HOST_TTS_SERVICE + '/static/';
 const TAGGED_CONTENT = '/epub/EPUB/daisy3-2.xhtml';
 const SMIL = '/epub/EPUB/mo/daisy3-2.smil';
-const BACKEND = HOST + '/tts';
+const BACKEND = HOST_TTS_SERVICE + '/tts';
 
+fixBootstrapFontPath();
+const playerView = fs.readFileSync(__dirname + '/templates/player-view.html', 'utf8');
 var player;
 
 const config = {
@@ -31,10 +33,7 @@ const config = {
 
 $(document).ready(function () {
 
-    const styleTag = $('<style>.highlight { background-color: #ffcb59; } </style>')
-    const btnRead = $('<button id="' + config.btnRead + '" type="button">Vorlesen </button>');
-    $(config.addButtonTo).append(btnRead);
-    $('html > head').append(styleTag);
+    $(config.addButtonTo).append($(playerView));
 
     $("#" + config.btnRead).click(function (event) {
 
@@ -53,16 +52,64 @@ $(document).ready(function () {
             btn.removeClass('sk-rotating-plane');
             const result = JSON.parse(res.response);
             //console.log(result);
+            showPlayerMenu();
             readContent(result.jobID);
 
         }).catch(function (err) {
             btn.removeClass('sk-rotating-plane');
-            console.log(err);
+            console.error(err);
         });
 
     });
     console.log("ready!");
 });
+
+
+function  fixBootstrapFontPath() {
+
+    const p = HOST_TTS_SERVICE + '/public/';
+    var style = '@font-face { font-family: \'Glyphicons Halflings\'; ';
+    style += 'src: url(\''+p+'fonts/glyphicons-halflings-regular.eot\');';
+    style += 'src: url(\''+p+'fonts/glyphicons-halflings-regular.eot?#iefix\') format(\'embedded-opentype\'),';
+    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.woff2\') format(\'woff2\'),';
+    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.woff\') format(\'woff\'), ';
+    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.ttf\') format(\'truetype\'),';
+    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular\') format(\'svg\');}';
+
+    const styleTag = $('<style type=\"text/css\">' + style + '<\/style>');
+    $('head').prepend(styleTag);
+    // fallback 
+    //var cssLink = $("<link>");
+    //$("head").append(cssLink); //IE hack: append before setting href
+    //
+    //cssLink.attr({
+    //    rel:  "stylesheet",
+    //    type: "text/css",
+    //    href: p + 'fonts.css'
+    //});
+}
+
+function showPlayerMenu() {
+
+    $('.mnuPlayer').show();
+    addListenerToPlayerMnu();
+}
+
+function addListenerToPlayerMnu() {
+
+    $("#btnPlay").click(function () {
+
+        if (player && player.isLoaded())
+            player.playpause();
+    });
+
+    $("#btnStop").click(function () {
+
+        if (player && player.isLoaded())
+            player.stop();
+    });
+
+}
 
 function readContent(jobID) {
 
@@ -123,15 +170,27 @@ function sendData(data) {
             resolve(xhr);
         });
 
-        xhr.addEventListener('error', function () {
-            reject('Oups! Something goes wrong.');
+        xhr.addEventListener('error', function (err) {
+            reject('Oups! AJAX request failed: ' + BACKEND);
         });
 
         xhr.open('POST', BACKEND);
         xhr.send(data);
-    })
+    });
 }
 
+
+function getPathOfTTSService() {
+
+    // ie ? document.currentScript
+    if (document.currentScript) {
+        const thisScriptFullPath = document.currentScript.src;
+        console.log('currentScriptFullPath : ' + thisScriptFullPath);
+        const url = new URL(thisScriptFullPath);
+        return url.protocol + '//' + url.host;
+    } else
+        throw Exception('Cannot get path to TTS service. Really bad!');
+}
 
 const Player = Backbone.View.extend({
 
@@ -146,24 +205,24 @@ const Player = Backbone.View.extend({
     initialize: function () {
         var self = this;
         this.model.bind('change:is_playing', function () {
-            self.render()
+            self.render();
         });
         this.model.bind('change:is_ready', function () {
             self.is_loaded = true;
         });
         this.model.bind('change:can_escape', function () {
-            self.render()
+            self.render();
         });
         this.render();
     },
 
     render: function () {
         if (this.model.get("is_playing")) {
-            $("#" + config.btnRead).text("Pause");
+            $("#play").attr("class", "glyphicon glyphicon-pause aligned");
             $("#cb").attr('disabled', 'disabled');
         }
         else {
-            $("#" + config.btnRead).text("Vorlesen");
+            $("#play").attr("class", "glyphicon glyphicon-play aligned");
             $("#cb").removeAttr('disabled');
         }
         if (this.model.get("can_escape")) {
@@ -175,7 +234,6 @@ const Player = Backbone.View.extend({
 
         return this;
     },
-
     playpause: function () {
         var self = this;
         // load a file if we haven't already
@@ -187,15 +245,23 @@ const Player = Backbone.View.extend({
             }
 
             this.model.fetch();
-        }
-        else {
-            if (this.model.get("is_playing")) {
+
+        } else {
+            if (this.model.get("is_playing"))
                 this.model.pause();
-            }
-            else {
+            else
                 this.model.resume();
-            }
+
         }
+    },
+    stop: function () {
+        if (this.model.get("is_playing")) {
+            this.model.pause();
+            $("*").removeClass("highlight");
+
+            this.model.set("is_stop", true);
+        }
+        //TODO:
     },
     setvolume: function () {
         this.model.setVolume($("#volume")[0].value / 100);

@@ -14,6 +14,7 @@ var MediaOverlay = Backbone.Model.extend({
         is_ready: false,
         is_document_done: false,
         is_playing: false,
+        is_stop: false,
         should_highlight: true,
         current_text_document_url: null,
         current_text_element_id: null,

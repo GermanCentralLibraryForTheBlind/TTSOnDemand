@@ -64,7 +64,8 @@ var router = function (app) {
         getPage(href, function (page) {
 
             page = replacements(page);
-            page = inject(page);
+            const host = req.protocol+ '://' + req.headers.host;
+            page = inject(page , host);
 
             fs.writeFileSync(path.resolve(__dirname) + '/../../public/temp.html', page);
 
@@ -180,16 +181,16 @@ var router = function (app) {
         return data;
     }
 
-    function inject(page) {
+    function inject(page, host) {
         const $ = cheerio.load(page);
-        $('body').append($('<script src="bundle.js"></script>'));
+        $('body').append($('<script src=\"'+ host + '/public/bundle.js\"><\/script>'));
         return $.html();
     }
 
     function fullUrl(req) {
         return url.format({
             protocol: req.protocol,
-            hostname: req.hostname,
+            host: req.headers.host,
             pathname: req.originalUrl
         });
     }
