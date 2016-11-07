@@ -64,10 +64,8 @@ var router = function (app) {
         getPage(href, function (page) {
 
             page = replacements(page);
-
-            var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-            console.log('ip '+ ip);
-            const host = req.protocol+ '://' + req.get('host');
+            
+            const host = req.protocol+ '://' + 'tts.dzb.de:3000'; // fixme 
             page = inject(page , host);
 
             fs.writeFileSync(path.resolve(__dirname) + '/../../public/temp.html', page);
