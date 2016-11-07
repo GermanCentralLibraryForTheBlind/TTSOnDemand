@@ -64,7 +64,9 @@ var router = function (app) {
         getPage(href, function (page) {
 
             page = replacements(page);
-            
+
+            var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            console.log('ip '+ ip);
             const host = req.protocol+ '://' + req.get('host');
             page = inject(page , host);
 
