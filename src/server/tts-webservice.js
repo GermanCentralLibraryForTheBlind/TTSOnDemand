@@ -30,6 +30,6 @@ require("./routes.js")(app);
 const server = app.listen(process.env.PORT || 3000, function () {
     const host = server.address().address;
     const  port = server.address().port;
-    console.log('Service is listening at http://%s:%s', host, port);
+    console.log('[INFO] Service is listening at http://%s:%s', host, port);
 });
 
