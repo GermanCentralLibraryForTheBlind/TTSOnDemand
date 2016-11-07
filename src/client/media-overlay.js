@@ -2,7 +2,7 @@ const
     Backbone = require('backbone'),
     $ = require('jquery'),
     AudioClipPlayer = require('./audio-clip-player.js'),
-    SmilModel = require('./smil-model.js');
+    SmilModel = require('./model/smil-model.js');
 Backbone.$ = $;
 // loads and plays a single SMIL document
 var MediaOverlay = Backbone.Model.extend({
