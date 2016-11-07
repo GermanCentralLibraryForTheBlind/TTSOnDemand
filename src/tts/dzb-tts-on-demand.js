@@ -78,11 +78,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
         }).catch(function (err) {
             // extractResult
-            fsExtra.move(jobPath, BASE_PATH + 'error', function (err) {
-                if (err)
-                    return console.error(err)
-               // console.log("success!")
-            });
+            saveFailedJobData(jobPath, jobID);
             reject(err);
 
         }).then(function (result) {
@@ -91,13 +87,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
             // if(fs.accessSync(jobPath))
             const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
             if (!fs.existsSync(audioFile)) {
-
-                fsExtra.move(jobPath, BASE_PATH + 'error', { clobber: true }, function (err) {
-                    if (err)
-                        return console.error(err)
-                    // console.log("success!")
-                });
-
+                saveFailedJobData(jobPath, jobID);
                 return reject('Job has no audio file!');
             }
             resolve({jobID: jobID});
@@ -106,6 +96,17 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
     }); // promise end
 };
 
+
+function saveFailedJobData(jobPath, jobId) {
+
+    fsExtra.copy(jobPath, BASE_PATH + 'error/' + jobId, { clobber: true }, function (err) {
+
+        fsExtra.removeSync(jobPath);
+        if (err)
+            return console.error('[ERROR] Copy data of failed job: ' + err);
+        // console.log("success!")
+    });
+}
 
 function normalizeClientContent($, jobPath) {
     
