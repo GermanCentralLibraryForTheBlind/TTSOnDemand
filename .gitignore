@@ -52,7 +52,7 @@ crashlytics.properties
 crashlytics-build.properties
 ### Node template
 # Logs
-logs
+# logs
 *.log
 npm-debug.log*
 

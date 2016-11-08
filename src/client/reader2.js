@@ -22,7 +22,6 @@ const TAGGED_CONTENT = '/epub/EPUB/daisy3-2.xhtml';
 const SMIL = '/epub/EPUB/mo/daisy3-2.smil';
 const BACKEND = HOST_TTS_SERVICE + '/tts';
 
-
 fixBootstrapFontPath();
 const playerTemplate = fs.readFileSync(__dirname + '/templates/player-view.html', 'utf8');
 
@@ -30,7 +29,7 @@ var player;
 
 const config = {
     btnRead: 'btnRead',
-    addButtonTo: '.conDetailHeader',
+    addButtonTo: '.conDetailHeader .boxCon',
     content: ['.sectionWrapperMain', '#content']
 };
 
@@ -38,7 +37,11 @@ const config = {
 $(document).ready(function () {
 
     $(config.addButtonTo).append($(playerTemplate));
+    
+    //const btn = $('.glyphicon-bullhorn');
+    //btn.addClass('sk-rotating-plane');
 
+    //$('.spinner').show();
     $("#" + config.btnRead).click(function (event) {
 
         if (player && player.isLoaded()) {
@@ -49,21 +52,20 @@ $(document).ready(function () {
             return;
         }
 
-        const btn = $(event.currentTarget);
-        btn.addClass('sk-rotating-plane');
-
+        
+        
         const $content = $(config.content[0], config.content[1])
         const $normalizedContent = SiteFilter.skip($content);
 
         sendData($normalizedContent.html()).then(function (res) {
-            btn.removeClass('sk-rotating-plane');
+            //$('.spinner').hide();
             const result = JSON.parse(res.response);
             //console.log(result);
             showPlayerMenu();
             readContent(result.jobID);
 
         }).catch(function (err) {
-            btn.removeClass('sk-rotating-plane');
+            //$('.spinner').hide();
             console.error(err);
         });
 
