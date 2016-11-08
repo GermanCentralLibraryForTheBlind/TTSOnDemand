@@ -1,4 +1,6 @@
 /* todo:
+ [ ] if the player invisible make the elements aria-hidden="true"
+ [ ] if mobile browser than button xs
  [ ] verify that no content/structure of original page lost during injected smil tagged elements
  [X] get the path to smil and new tagged content  dynamically
  */
@@ -15,6 +17,7 @@ const
 Backbone.$ = $;
 SiteFilter.$ = $;
 require('./css/style.css');
+require('./css/style.css');
 
 const HOST_TTS_SERVICE = getPathOfTTSService();
 const JOB_BASE_PATH = HOST_TTS_SERVICE + '/static/';
@@ -29,50 +32,47 @@ var player;
 
 const config = {
     btnRead: 'btnRead',
-    addButtonTo: '.conDetailHeader .boxCon',
+    addButtonTo: '#content .sectionWrapperMain',
     content: ['.sectionWrapperMain', '#content']
 };
 
 
 $(document).ready(function () {
 
-    $(config.addButtonTo).append($(playerTemplate));
-    
-    //const btn = $('.glyphicon-bullhorn');
-    //btn.addClass('sk-rotating-plane');
+    $(config.addButtonTo).prepend($(playerTemplate));
 
-    //$('.spinner').show();
     $("#" + config.btnRead).click(function (event) {
+
+        toogleProcessSpinner();
 
         if (player && player.isLoaded()) {
 
-           // start playback  at the beginning
+            // start playback  at the beginning
             player.stop();
             player.playpause();
+            toogleProcessSpinner();
             return;
         }
 
-        
-        
+
         const $content = $(config.content[0], config.content[1])
         const $normalizedContent = SiteFilter.skip($content);
 
         sendData($normalizedContent.html()).then(function (res) {
-            //$('.spinner').hide();
+            toogleProcessSpinner();
             const result = JSON.parse(res.response);
             //console.log(result);
             showPlayerMenu();
             readContent(result.jobID);
 
         }).catch(function (err) {
-            //$('.spinner').hide();
+            toogleProcessSpinner();
             console.error(err);
         });
 
     });
     console.log("ready!");
 });
-
 
 
 function showPlayerMenu() {
@@ -95,6 +95,13 @@ function addListenerToPlayerMnu() {
             player.stop();
     });
 
+}
+
+function toogleProcessSpinner() {
+
+    const spinner = $('.glyphicon-spin');
+
+    spinner.toggleClass('glyphicon-spin-hide');
 }
 
 function readContent(jobID) {
@@ -185,16 +192,16 @@ function getPathOfTTSService() {
         throw Exception('Cannot get path to TTS service. Really bad!');
 }
 
-function  fixBootstrapFontPath() {
+function fixBootstrapFontPath() {
 
     const p = HOST_TTS_SERVICE + '/public/';
     var style = '@font-face { font-family: \'Glyphicons Halflings\'; ';
-    style += 'src: url(\''+p+'fonts/glyphicons-halflings-regular.eot\');';
-    style += 'src: url(\''+p+'fonts/glyphicons-halflings-regular.eot?#iefix\') format(\'embedded-opentype\'),';
-    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.woff2\') format(\'woff2\'),';
-    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.woff\') format(\'woff\'), ';
-    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.ttf\') format(\'truetype\'),';
-    style += 'url(\''+p+'fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular\') format(\'svg\');}';
+    style += 'src: url(\'' + p + 'fonts/glyphicons-halflings-regular.eot\');';
+    style += 'src: url(\'' + p + 'fonts/glyphicons-halflings-regular.eot?#iefix\') format(\'embedded-opentype\'),';
+    style += 'url(\'' + p + 'fonts/glyphicons-halflings-regular.woff2\') format(\'woff2\'),';
+    style += 'url(\'' + p + 'fonts/glyphicons-halflings-regular.woff\') format(\'woff\'), ';
+    style += 'url(\'' + p + 'fonts/glyphicons-halflings-regular.ttf\') format(\'truetype\'),';
+    style += 'url(\'' + p + 'fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular\') format(\'svg\');}';
 
     const styleTag = $('<style type=\"text/css\">' + style + '<\/style>');
     $('head').prepend(styleTag);

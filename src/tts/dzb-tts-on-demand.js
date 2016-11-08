@@ -36,6 +36,7 @@ const TTSGenerator = {};
  [X] own folder per job with unique id
  [X] caching: synthesize only on the first time
  [X] start dp2 via client
+ [ ] pm2 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-centos-7
  [ ] proper logging strategy
  [ ] config file
  [ ] test if the dp2 service state is fine and or fix the it to the correct working state

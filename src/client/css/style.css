@@ -4,15 +4,11 @@
 @import (less) url("./bootstrap-custom/css/bootstrap.css");
 }
 
-span.dachzeile {
-    padding-right: 220px; 
-}
-
 #readerCSS {
-    position: absolute;
-    right: 32px; 
+    float: right;
+    padding-right: 5%;
+    padding-top: 5%;
 }
-
 
 #readerCSS .mnuPlayer {
     display: none;
@@ -23,19 +19,13 @@ span.dachzeile {
     color: white;
 }
 
-.btnRead {
-    line-height: 16px;
-    font-size: 11pt;
-    top: 0;
-    right: 0;
-    /*/!*letter-spacing: 2px;*!/*/
-    /*/!*padding: 1px 1px;*!/*/
+.btn-group-custom {
+    letter-spacing: 2px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border: 1px solid rgba(0, 0, 0, 0.3);
     border-bottom-width: 3px;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-    float: left;
 }
 
 .btn-custom {
@@ -43,12 +33,46 @@ span.dachzeile {
     transition-duration: 0.5s;
 }
 
-.btn-custom:hover, .btn-custom:active {
+.btn-custom:hover, .btn-custom:active .btn-custom:focus {
     cursor: pointer;
     opacity: 0.5;
-    color: white;
+    color: white !important;
 }
 
 .highlight {
     background-color: #ffcb59;
+}
+
+.glyphicon-spin {
+    -webkit-animation: spin 1000ms infinite linear;
+    animation: spin 1000ms infinite linear;
+}
+
+.glyphicon-spin-hide {
+    display: none !important;
+}
+
+.glyphicon-spin-show {
+    display: block !important;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
 }

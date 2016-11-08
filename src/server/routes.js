@@ -64,9 +64,14 @@ var router = function (app) {
         getPage(href, function (page) {
 
             page = replacements(page);
-            
-            const host = req.protocol+ '://' + 'tts.dzb.de:3000'; // fixme 
-            page = inject(page , host);
+
+            var host = req.get('host');
+
+            if (process.env.NODE_ENV === 'production')
+                host = 'tts.dzb.de:3000';
+
+            const base = req.protocol + '://' + host;
+            page = inject(page, base);
 
             fs.writeFileSync(path.resolve(__dirname) + '/../../public/temp.html', page);
 
@@ -186,7 +191,7 @@ var router = function (app) {
         const $ = cheerio.load(page);
         const scriptPath = host + '/public/bundle.js';
         console.log('[INFO] Inject path: ' + scriptPath);
-        $('body').append($('<script src=\"'+ scriptPath +'\"><\/script>'));
+        $('body').append($('<script src=\"' + scriptPath + '\"><\/script>'));
         return $.html();
     }
 

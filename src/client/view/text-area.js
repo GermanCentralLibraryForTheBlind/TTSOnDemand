@@ -2,10 +2,10 @@ module.exports = {
 
     lastId: null,
 
-        initialize: function () {
+    initialize: function () {
         var self = this;
         this.model.bind('change:current_text_element_id', function () {
-            self.highlight()
+            self.highlight();
         });
     },
 
@@ -21,14 +21,11 @@ module.exports = {
             if (this.lastId != null) {
                 // undo the background color change
                 var lastelm = getTextElm(this.lastId);
-                console.log("Before remove class");
-                console.log(lastelm);
-
+                //console.log("Before remove class");
+                //console.log(lastelm);
                 lastelm.removeClass("highlight");
-
-                console.log("After remove class");
-                console.log(lastelm);
-
+                //console.log("After remove class");
+                //console.log(lastelm);
             }
 
             var elm = getTextElm(id);
@@ -36,15 +33,14 @@ module.exports = {
             if (elm.length > 0) {
                 this.lastId = id;
 
-                if ($("#" + id).is(":visible") != true) {
-                    elm[0].scrollIntoView();
-                }
+                //if ($("#" + id).is(":visible")) {
+                //    elm[0].scrollIntoView(true);
+                //}
                 elm.addClass("highlight");
             }
-
-            function getTextElm(elmId) {
-                return $("html").contents().find("#" + elmId);
-            }
+        }
+        function getTextElm(elmId) {
+            return $("html").contents().find("#" + elmId);
         }
     }
-}
+};
