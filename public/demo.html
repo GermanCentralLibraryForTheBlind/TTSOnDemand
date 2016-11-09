@@ -24,6 +24,11 @@
         .content_sidebar {
             margin-right: 15em;
         }
+        .scrollable-menu {
+            height: auto;
+            max-height: 400px;
+            overflow-x: hidden;
+        }
     </style>
 
 
@@ -67,7 +72,7 @@
             });
 
             $( "<ul/>", {
-                "class": "dropdown-menu",
+                "class": "dropdown-menu scrollable-menu",
                 html: items.join( "" )
             }).appendTo('.dropdown');
 
