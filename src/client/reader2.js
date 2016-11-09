@@ -17,7 +17,6 @@ const
 Backbone.$ = $;
 SiteFilter.$ = $;
 require('./css/style.css');
-require('./css/style.css');
 
 const HOST_TTS_SERVICE = getPathOfTTSService();
 const JOB_BASE_PATH = HOST_TTS_SERVICE + '/static/';
