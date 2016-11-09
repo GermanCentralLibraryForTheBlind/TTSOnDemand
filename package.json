@@ -22,6 +22,7 @@
     "http": "0.0.0",
     "https": "^1.0.0",
     "morgan": "^1.7.0",
+    "pm2": "^2.1.4",
     "public-ip": "^2.0.1",
     "querystring": "^0.2.0",
     "request": "^2.74.0",
@@ -32,7 +33,11 @@
   },
   "scripts": {
     "tts-webservice": "node src/server/tts-webservice.js",
-    "tts-webservice-prod": "NODE_ENV=production  node src/server/tts-webservice.js",
+    "tts-webservice-prod": "node_modules/.bin/pm2 start src/server/tts-webservice.js --env production",
+    "tts-webserive-prod-state" : "./node_modules/.bin/pm2 show tts-webservice",
+    "restart-service" : "./node_modules/.bin/pm2 restart all",
+    "logs" : "./node_modules/.bin/pm2 logs",
+    "kill-service": "./node_modules/.bin/pm2 stop all",
     "webservice-test": "src/server/test/test-tts-webservice.js",
     "build-bundle": "node_modules/.bin/browserify -t node-lessify -t brfs  src/client/reader2.js > public/bundle.js && node_modules/.bin/browserify -t node-lessify -t brfs  -t uglifyify src/client/reader2.js > public/bundle-prod.js"
   },
