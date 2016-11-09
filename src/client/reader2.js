@@ -59,7 +59,12 @@ $(document).ready(function () {
         const $normalizedContent = SiteFilter.skip($content);
 
         sendData($normalizedContent.html()).then(function (res) {
+
             toogleProcessSpinner();
+            if(res.status >= 300) {
+                alert('Somethings went wrong! Status: ' + res.status + ' ' + res.statusText);
+                return;
+            }
             const result = JSON.parse(res.response);
             //console.log(result);
             showPlayerMenu();
