@@ -19,6 +19,8 @@ Filter.skip = function ($content) {
 
         if (containsTextNode($this)) {
             //console.log($this.prop("tagName") + ' : ' + $this.html());
+            // todo: ignore if it invisible
+
 
             //************************** user specific *********************************
             if (escape[0] === $this.prop("tagName").toLowerCase())
@@ -26,7 +28,7 @@ Filter.skip = function ($content) {
             if ($this.hasClass("hidden"))
                 return;
             if ($this.parents('.conInline').length !== 0)
-                return
+                return;
             //**************************************************************************
 
             var $p = Filter.$('<p>');
@@ -34,6 +36,9 @@ Filter.skip = function ($content) {
             $this.attr('id', 'ID-TTS-' + i);
             $p.attr('id', 'ID-TTS-' + i);
             $p.append($clonedThis.contents());
+            //************************** user specific *********************************
+            $p.find("*").removeAttr("data-ctrl-link");
+            //**************************************************************************
             $normalizedContent.append($p);
             i++;
         }

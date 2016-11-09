@@ -72,7 +72,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
         dtbookToEpub3(jobPath).then(function (result) {
 
             if (result !== null && result.stdout && detailedLog) {
-                console.log(result.stdout);
+                console.log('[DEBUG] ' + result.stdout);
             }
             console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
             return extractResult(jobPath);
@@ -89,7 +89,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
             const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
             if (!fs.existsSync(audioFile)) {
                 saveFailedJobData(jobPath, jobID);
-                return reject('Job has no audio file!');
+                return reject('[ERROR] Job has no audio file!');
             }
             resolve({jobID: jobID});
 
@@ -100,7 +100,9 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
 function saveFailedJobData(jobPath, jobId) {
 
-    fsExtra.copy(jobPath, BASE_PATH + 'error/' + jobId, { clobber: true }, function (err) {
+    const pathToFailedJob = BASE_PATH + 'error/' + jobId;
+    fsExtra.removeSync(pathToFailedJob);
+    fsExtra.copy(pathToFailedJob, { clobber: true }, function (err) {
 
         fsExtra.removeSync(jobPath);
         if (err)
@@ -164,7 +166,7 @@ function execCmd(cmd) {
                 console.log("[DEBUG] :  " + stdout);
 
             if (stdout.indexOf('[ERROR]	ERR:') > -1) {
-                reject('Error exec ' + cmd);
+                reject('[ERROR] Error exec ' + cmd);
             } else {
                 resolve({
                     stdout: stdout,

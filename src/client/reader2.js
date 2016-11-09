@@ -1,6 +1,7 @@
 /* todo:
  [ ] if the player invisible make the elements aria-hidden="true"
  [ ] if mobile browser than button xs
+ [ ] restore all styles attribute if we replaced the original content with the tagged content
  [ ] verify that no content/structure of original page lost during injected smil tagged elements
  [X] get the path to smil and new tagged content  dynamically
  */
