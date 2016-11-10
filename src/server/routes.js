@@ -66,9 +66,8 @@ var router = function (app) {
             page = replacements(page);
 
             var host = req.get('host');
-
-            //console.log('NODE_ENV: ' + process.env.NODE_ENV);
-            //if (process.env.NODE_ENV === 'production')
+            
+            if (process.env.NODE_ENV === 'production')
                 host = 'tts.dzb.de:3000';
 
             const base = req.protocol + '://' + host;
