@@ -37,16 +37,14 @@ var router = function (app) {
             });
 
             req.on('end', function () {
-                //console.info("received data: " +data);
-                generator.textToSpeech(data).then(function (result) {
-                    //console.log(result);
-                    return res.json(result);
+                    //console.info("received data: " +data);
+                    generator.textToSpeech(data).then(function (result) {
+                        //console.log(result);
+                        return res.json(result);
 
-                }).catch(function (err) {
-                    return handleError(res, err, 'Nothing is alright! Something goes wrong.');
-                });
-
-
+                    }).catch(function (err) {
+                        return handleError(res, err, 'Nothing is alright! Something goes wrong.');
+                    });
             });
         }
     });
@@ -66,7 +64,7 @@ var router = function (app) {
             page = replacements(page);
 
             var host = req.get('host');
-            
+
             if (process.env.NODE_ENV === 'production')
                 host = 'tts.dzb.de:3000';
 
