@@ -20,10 +20,10 @@ const TMP = 'tmp/',
     BASE_PATH = path.resolve(__dirname) + '/../../';
 
 var PATH_DP2_CLI = '';
-if (os.platform() == 'linux')
+if (os.platform() === 'linux')
     PATH_DP2_CLI = BASE_PATH + 'tools/linux_386/';
 
-if (os.platform() == 'darwin')
+if (os.platform() === 'darwin')
     PATH_DP2_CLI = BASE_PATH + 'tools/darwin_amd64/';
 
 

@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // access logger
 const accessLogStream = fs.createWriteStream(__dirname + '/../../logs/access.log', {flags: 'a'});
-app.use(morgan('combined', {stream: accessLogStream}))
+app.use(morgan('combined', {stream: accessLogStream}));
 
 
 require("./routes.js")(app);

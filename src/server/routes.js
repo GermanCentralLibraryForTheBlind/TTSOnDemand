@@ -172,7 +172,7 @@ var router = function (app) {
     function getPage(href, callback) {
 
         request(href, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
+            if (!error && response.statusCode === 200) {
                 return callback(body);
             }
         });
