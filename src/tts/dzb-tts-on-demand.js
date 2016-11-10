@@ -10,6 +10,7 @@ const
     os = require('os'),
     crypto = require('crypto'),
     fsExtra = require('fs-extra'),
+    sem = require('semaphore')(1),
     exec = require('child_process').exec;
 
 
@@ -27,7 +28,7 @@ if (os.platform() === 'darwin')
     PATH_DP2_CLI = BASE_PATH + 'tools/darwin_amd64/';
 
 
-const detailedLog = false;
+const detailedLog = true;
 const TTSGenerator = {};
 
 
@@ -36,7 +37,7 @@ const TTSGenerator = {};
  [X] own folder per job with unique id
  [X] caching: synthesize only on the first time
  [X] start dp2 via client
- [ ] pm2 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-centos-7
+ [X] pm2 production mode
  [ ] proper logging strategy
  [ ] config file
  [ ] test if the dp2 service state is fine and or fix the it to the correct working state
@@ -57,44 +58,49 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
         const jobID = getMD5Checksum($);
         const jobPath = generateJobPath(jobID);
 
-        if (fs.existsSync(jobPath)) {
-            console.log("[INFO] Nothing to do -> Job " + jobID + " is cached.");
-            return resolve({jobID: jobID});
-        }
+        sem.take(function () {
 
-        createTmpFolderForJob(jobPath);
-        $ = normalizeClientContent($);
-        saveAsDTBook($, jobPath);
-      // return;
-        console.log("[INFO] Write normalized page for job " + jobID + " ready.");
-        //console.log($.html());
-
-        dtbookToEpub3(jobPath).then(function (result) {
-
-            if (result !== null && result.stdout && detailedLog) {
-                console.log('[DEBUG] ' + result.stdout);
+            if (fs.existsSync(jobPath)) {
+                 
+                    console.log("[INFO] Nothing to do -> Job " + jobID + " is cached.");
+                    return resolve({jobID: jobID});
             }
-            console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
-            return extractResult(jobPath);
 
-        }).catch(function (err) {
-            // extractResult
-            saveFailedJobData(jobPath, jobID);
-            reject(err);
+            createTmpFolderForJob(jobPath);
 
-        }).then(function (result) {
+            $ = normalizeClientContent($);
+            saveAsDTBook($, jobPath);
+            // return;
+            console.log("[INFO] Write normalized page for job " + jobID + " ready.");
+            //console.log($.html());
 
-            // console.log(result);
-            // if(fs.accessSync(jobPath))
-            const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
-            if (!fs.existsSync(audioFile)) {
+            dtbookToEpub3(jobPath).then(function (result) {
+
+                if (result !== null && result.stdout && detailedLog) {
+                    console.log('[DEBUG] ' + result.stdout);
+                }
+                console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
+                return extractResult(jobPath);
+
+            }).catch(function (err) {
+                // extractResult
                 saveFailedJobData(jobPath, jobID);
-                return reject('[ERROR] Job has no audio file!');
-            }
-            resolve({jobID: jobID});
+                reject(err);
 
-        });
-    }); // promise end
+            }).then(function (result) {
+
+                // console.log(result);
+                // if(fs.accessSync(jobPath))
+                const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
+                if (!fs.existsSync(audioFile)) {
+                    saveFailedJobData(jobPath, jobID);
+                    return reject('[ERROR] Job has no audio file!');
+                }
+                resolve({jobID: jobID});
+
+            });
+        }); // promise end
+    });
 };
 
 
@@ -102,7 +108,7 @@ function saveFailedJobData(jobPath, jobId) {
 
     const pathToFailedJob = BASE_PATH + 'error/' + jobId;
     fsExtra.removeSync(pathToFailedJob);
-    fsExtra.copy(pathToFailedJob, { clobber: true }, function (err) {
+    fsExtra.copy(pathToFailedJob, {clobber: true}, function (err) {
 
         fsExtra.removeSync(jobPath);
         if (err)
@@ -112,10 +118,12 @@ function saveFailedJobData(jobPath, jobId) {
 }
 
 function normalizeClientContent($, jobPath) {
-    
+
     //  fs.writeFileSync(jobPath + 'before_normalize.html', $.html());
-    $("[style]").each(function () {$(this).removeAttr('style');});
-    unwrap($,'br');
+    $("[style]").each(function () {
+        $(this).removeAttr('style');
+    });
+    unwrap($, 'br');
     //  fs.writeFileSync(jobPath + 'after_normalize.html', $result.html());
     return $;
 }
@@ -128,7 +136,7 @@ function saveAsDTBook($data, jobPath) {
     skeleton += '<head><meta content="C00000" name="dtb:uid"/><meta name="dc:Title" content="Test"/></head>';
     skeleton += '<book><frontmatter><doctitle>Test</doctitle></frontmatter><bodymatter><level1></level1></bodymatter></book></dtbook>';
 
-    const $ = cheerio.load(skeleton, { xmlMode: true });
+    const $ = cheerio.load(skeleton, {xmlMode: true});
     $('level1').append($data.html());
 
     fs.writeFileSync(jobPath + DAISY3, $.html());
@@ -193,6 +201,8 @@ function createTmpFolderForJob(jobPath) {
 
     fsExtra.removeSync(jobPath);
     fs.mkdirSync(jobPath);
+
+    sem.leave();
 }
 
 
