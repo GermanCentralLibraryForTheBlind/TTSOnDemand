@@ -11,7 +11,6 @@ const
     crypto = require('crypto'),
     fsExtra = require('fs-extra'),
     sem = require('semaphore')(1),
-    locks = require('locks'),
     exec = require('child_process').exec;
 
 
@@ -19,9 +18,7 @@ const TMP = 'tmp/',
     DAISY3 = 'daisy3.xml',
     EPUB3 = 'result/',
     VOICE_CONFIG = 'etc/voice.xml',
-    BASE_PATH = path.resolve(__dirname) + '/../../',
-
-    rwlock = locks.createReadWriteLock();
+    BASE_PATH = path.resolve(__dirname) + '/../../';
 
 var PATH_DP2_CLI = '';
 if (os.platform() == 'linux')
@@ -99,7 +96,6 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                     saveFailedJobData(jobPath, jobID);
                     return reject('[ERROR] Job has no audio file!');
                 }
-                rwlock.unlock();
                 resolve({jobID: jobID});
 
             });
