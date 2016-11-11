@@ -9,6 +9,8 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     http = require("http"),
     url = require('url'),
     fs = require('fs'),
+    moment = require('moment'),
+    ip = require('ip'),
     SiteFilter = require('./../client/site-filter');
 
 var cachingIntervall;
@@ -65,8 +67,8 @@ var router = function (app) {
 
             page = replacements(page);
 
-            var host = req.get('host');
-
+            var host = ip.address() + ':3000';
+            
             if (process.env.NODE_ENV === 'production')
                 host = 'tts.dzb.de:3000';
 
@@ -88,8 +90,9 @@ var router = function (app) {
 
     app.get("/caching/on", function (req, res) {
 
+        caching();
         if (cachingIntervall === undefined)
-            cachingIntervall = setInterval(caching, 60000);
+            cachingIntervall = setInterval(caching, 600000); // 10min
 
         res.send('Caching is activated!');
     });
@@ -103,13 +106,16 @@ var router = function (app) {
 
     function caching() {
 
+        const start = moment(new Date());
+        console.log('\n\n[INFO] Start caching at: ' + start.format() + '\n\n');
+
         const config = {content: ['.sectionWrapperMain', '#content']};
 
         getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
 
             console.log('[INFO] Found ' + refsToArticles.length + ' article refs');
 
-            refsToArticles.forEach(function (item) {
+            refsToArticles.forEach(function (item, i) {
 
                 const href = 'http://www.mdr.de' + item.href;
                 //console.log('[INFO] Try to load: ' + href);
@@ -150,7 +156,12 @@ var router = function (app) {
                     // req.end();
                     generator.textToSpeech($normalizedContent.html()).then(function (result) {
 
-                        console.log('[INFO] Result of caching ' + JSON.stringify(result));
+                        console.log('\n\n[INFO] Result of caching ' + JSON.stringify(result));
+                        const end = moment(new Date());
+                        const diff = moment.duration(end.diff(start));
+                        const duration = moment.utc(diff.asMilliseconds()).format("HH:mm:ss.SSS");
+                        console.log('[INFO] End of Job: ' + end.format());
+                        console.log('[INFO] Duration since start caching: ' + duration + '\n\n');
 
                     }).catch(function (err) {
                         // return handleError(res, err, 'Nothing is alright! Something goes wrong.');
@@ -159,7 +170,6 @@ var router = function (app) {
 
                 });
             });
-
         });
     }
 

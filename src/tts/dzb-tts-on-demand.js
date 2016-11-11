@@ -41,8 +41,10 @@ const TTSGenerator = {};
  [X] caching: synthesize only on the first time
  [X] start dp2 via client
  [X] pm2 production mode
+ [ ] date to job folder
+ [ ] use global temp path in production mode
  [ ] proper logging strategy
- [ ] config file
+ [ ] config file ( caching interval, 
  [ ] test if the dp2 service state is fine and or fix the it to the correct working state
  [ ] find a way to get the uncompressed epub content direct!
  [ ] strategy how long job data have in store until it will be deleted
@@ -61,6 +63,8 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
         const jobID = getMD5Checksum($);
         const jobPath = generateJobPath(jobID);
 
+        console.log("[INFO] Job ID: " + jobID);
+        
         sem.take(function () {
             // Limit simultaneous access of tts generator structure.
             // It is used to prevent a concurrent situation between caching client and user client.
@@ -76,7 +80,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                         return (lockFile.checkSync(jobPath + JOB_LOCK) ? false : true);
                     })
                     .done(function () {
-                        console.log("[INFO] Nothing to do -> Job " + jobID + " is cached.");
+                        console.log("[INFO] Nothing to do -> Job " + jobID + " is already cached.");
                         return resolve({jobID: jobID});
                     });
                 return;
@@ -99,6 +103,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                 return extractResult(jobPath);
 
             }).catch(function (err) {
+                lockFile.unlockSync(jobPath + JOB_LOCK);
                 // extractResult
                 saveFailedJobData(jobPath, jobID);
                 reject(err);
@@ -109,6 +114,8 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                 // if(fs.accessSync(jobPath))
                 const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
                 if (!fs.existsSync(audioFile)) {
+                    console.error('[ERROR] Job has no audio file!');
+                    lockFile.unlockSync(jobPath + JOB_LOCK);
                     saveFailedJobData(jobPath, jobID);
                     return reject('[ERROR] Job has no audio file!');
                 }
@@ -125,6 +132,8 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
 function saveFailedJobData(jobPath, jobId) {
 
+    console.error('[ERROR] Save failed job data: ' + jobPath);
+    
     const pathToFailedJob = BASE_PATH + 'error/' + jobId;
     fsExtra.removeSync(pathToFailedJob);
     fsExtra.copy(pathToFailedJob, {clobber: true}, function (err) {
