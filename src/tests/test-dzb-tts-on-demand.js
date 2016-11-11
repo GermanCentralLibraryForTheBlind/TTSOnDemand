@@ -10,30 +10,25 @@ rimraf.sync(path.resolve(__dirname) + '/../../tmp/');
 
 const demo = fs.readFileSync(path.resolve(__dirname, 'test_data.html'), 'utf8');
 
+var i = 0;
 
 runjob();
-setTimeout(function() {
-    runjob();
-}, 5000);
-
-
-
-
+const interval = setInterval(runjob, 500);
 
 function runjob() {
 
+    console.log('i: ' + i);
+    if(i === 50)
+        clearInterval(interval);
     tTSGenerator.textToSpeech(demo)
         .then(function (result) {
-
-            if (result.stderr) {
-                console.log('error test: ' + result.stderr);
-            }
-            if (result.stdout && detailedLog) {
-                console.log(result.stdout);
-            }
+            console.log(result);
 
         }).catch(function (err) {
         console.log('Test failed : ' + err);
     });
-    
+    i++;
 }
+
+
+

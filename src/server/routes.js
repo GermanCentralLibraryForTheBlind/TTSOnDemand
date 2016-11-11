@@ -11,12 +11,14 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     fs = require('fs'),
     SiteFilter = require('./../client/site-filter');
 
+var cachingIntervall;
+
 var router = function (app) {
 
     // Generic error handler used by all endpoints.
     function handleError(res, reason, message, code) {
         console.log("[ERROR] " + reason);
-        res.status(code || 500).json({"error": message});
+        res.status(code || 500).json({"error": reason});
     }
 
     //***********************************************************
@@ -37,14 +39,14 @@ var router = function (app) {
             });
 
             req.on('end', function () {
-                    //console.info("received data: " +data);
-                    generator.textToSpeech(data).then(function (result) {
-                        //console.log(result);
-                        return res.json(result);
+                //console.info("received data: " +data);
+                generator.textToSpeech(data).then(function (result) {
+                    //console.log(result);
+                    return res.json(result);
 
-                    }).catch(function (err) {
-                        return handleError(res, err, 'Nothing is alright! Something goes wrong.');
-                    });
+                }).catch(function (err) {
+                    return handleError(res, err, 'Nothing is alright! Something goes wrong.');
+                });
             });
         }
     });
@@ -84,7 +86,22 @@ var router = function (app) {
         });
     });
 
-    app.get("/all/articles/tts", function (req, res) {
+    app.get("/caching/on", function (req, res) {
+
+        if (cachingIntervall === undefined)
+            cachingIntervall = setInterval(caching, 60000);
+
+        res.send('Caching is activated!');
+    });
+
+    app.get("/caching/of", function (req, res) {
+
+        clearInterval(cachingIntervall);
+
+        res.send('Caching is deactivated!');
+    });
+
+    function caching() {
 
         const config = {content: ['.sectionWrapperMain', '#content']};
 
@@ -95,50 +112,56 @@ var router = function (app) {
             refsToArticles.forEach(function (item) {
 
                 const href = 'http://www.mdr.de' + item.href;
-                console.log('[INFO] Try to load: ' + href);
+                //console.log('[INFO] Try to load: ' + href);
 
                 getPage(href, function (page) {
 
-                    console.log('[INFO] Article from ' + href + ' loaded');
+                    //console.log('[INFO] Article from ' + href + ' loaded');
                     const $ = cheerio.load(page);
                     const $content = $(config.content[0], config.content[1]);
                     SiteFilter.$ = cheerio;
 
                     const $normalizedContent = SiteFilter.skip($content);
 
-                    var options = {
-                        host: 'localhost',
-                        port: '3000',
-                        path: '/tts',
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/xhtml+xml'
-                        }
-                    };
+                    // var options = {
+                    //     host: 'localhost',
+                    //     port: '3000',
+                    //     path: '/tts',
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/xhtml+xml'
+                    //     }
+                    // };
+                    //
+                    // var req = http.request(options, function (res) {
+                    //
+                    //     res.on('end', function () {
+                    //         console.log('[INFO] End POST request :' + href);
+                    //     });
+                    //
+                    // });
+                    //
+                    // req.setTimeout(3000);
+                    // req.on('error', function (err) {
+                    //     console.log('[ERROR]  ', err);
+                    // });
+                    // // post the data
+                    // req.write($normalizedContent.html());
+                    // req.end();
+                    generator.textToSpeech($normalizedContent.html()).then(function (result) {
 
-                    var req = http.request(options, function (res) {
+                        console.log('[INFO] Result of caching ' + JSON.stringify(result));
 
-                        res.on('end', function () {
-                            console.log('[INFO] End POST request :' + href);
-                        });
-
+                    }).catch(function (err) {
+                        // return handleError(res, err, 'Nothing is alright! Something goes wrong.');
+                        console.error('[ERROR] caching of job went wrong: ' + err);
                     });
-
-                    req.setTimeout(3000);
-                    req.on('error', function (err) {
-                        console.log('[ERROR]  ', err);
-                    });
-                    // post the data
-                    req.write($normalizedContent.html());
-                    req.end();
-
 
                 });
             });
-            res.send('Start caching!');
-        });
 
-    });
+        });
+    }
 
     function getArticleRefs(mainPage, callback) {
 
@@ -172,6 +195,8 @@ var router = function (app) {
             if (!error && response.statusCode === 200) {
                 return callback(body);
             }
+            else
+                console.error('[ERROR] ' + error); // TODO: MAil ???
         });
     }
 

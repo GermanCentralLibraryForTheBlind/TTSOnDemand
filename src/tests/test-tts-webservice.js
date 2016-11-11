@@ -9,7 +9,7 @@ const fs = require('fs'),
 
 const url = 'http://localhost:3000/tts';
 
-fs.createReadStream(path.resolve(__dirname, '../../../demo.html'))
+fs.createReadStream(path.resolve(__dirname, 'test_data.html'))
     .on('error', function (e) {
         console.error(e);
     })

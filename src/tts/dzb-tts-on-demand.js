@@ -11,6 +11,8 @@ const
     crypto = require('crypto'),
     fsExtra = require('fs-extra'),
     sem = require('semaphore')(1),
+    lockFile = require('lockfile'),
+    waitUntil = require('wait-until'),
     exec = require('child_process').exec;
 
 
@@ -18,7 +20,8 @@ const TMP = 'tmp/',
     DAISY3 = 'daisy3.xml',
     EPUB3 = 'result/',
     VOICE_CONFIG = 'etc/voice.xml',
-    BASE_PATH = path.resolve(__dirname) + '/../../';
+    BASE_PATH = path.resolve(__dirname) + '/../../',
+    JOB_LOCK = '/job.lock';
 
 var PATH_DP2_CLI = '';
 if (os.platform() === 'linux')
@@ -28,7 +31,7 @@ if (os.platform() === 'darwin')
     PATH_DP2_CLI = BASE_PATH + 'tools/darwin_amd64/';
 
 
-const detailedLog = true;
+const detailedLog = false;
 const TTSGenerator = {};
 
 
@@ -59,11 +62,24 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
         const jobPath = generateJobPath(jobID);
 
         sem.take(function () {
+            // Limit simultaneous access of tts generator structure.
+            // It is used to prevent a concurrent situation between caching client and user client.
 
             if (fs.existsSync(jobPath)) {
-                 
-                    console.log("[INFO] Nothing to do -> Job " + jobID + " is cached.");
-                    return resolve({jobID: jobID});
+                sem.leave();
+
+                // A job data will be requested the first time then the tts generator will produce it
+                // but the same job will be multiple requested on the same time then it wait until the first
+                // job is finished and all job requests can use the result of the first job.
+                waitUntil().interval(500).times(600) // try it 500 ms * 600  = 5min
+                    .condition(function () {
+                        return (lockFile.checkSync(jobPath + JOB_LOCK) ? false : true);
+                    })
+                    .done(function () {
+                        console.log("[INFO] Nothing to do -> Job " + jobID + " is cached.");
+                        return resolve({jobID: jobID});
+                    });
+                return;
             }
 
             createTmpFolderForJob(jobPath);
@@ -96,6 +112,9 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                     saveFailedJobData(jobPath, jobID);
                     return reject('[ERROR] Job has no audio file!');
                 }
+
+                lockFile.unlockSync(jobPath + JOB_LOCK);
+
                 resolve({jobID: jobID});
 
             });
@@ -170,12 +189,14 @@ function execCmd(cmd) {
 
         exec(cmd, function (error, stdout, stderr) {
 
-            if (detailedLog)
-                console.log("[DEBUG] :  " + stdout);
+            //  if (detailedLog)
+            //     console.log("[DEBUG] :  " + stdout);
 
-            if (stdout.indexOf('[ERROR]	ERR:') > -1) {
+            if (stdout.indexOf('[ERROR]	ERR:') > -1)
                 reject('[ERROR] Error exec ' + cmd);
-            } else {
+            else if (stdout.indexOf('Error bringing the pipeline2 up') > -1)
+                reject('[ERROR] Error exec ' + cmd);
+            else {
                 resolve({
                     stdout: stdout,
                     stderr: stderr
@@ -201,6 +222,8 @@ function createTmpFolderForJob(jobPath) {
 
     fsExtra.removeSync(jobPath);
     fs.mkdirSync(jobPath);
+
+    lockFile.lockSync(jobPath + JOB_LOCK);
 
     sem.leave();
 }
