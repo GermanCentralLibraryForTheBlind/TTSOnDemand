@@ -1,5 +1,6 @@
 /* todo:
  [ ] if the player invisible make the elements aria-hidden="true"
+ [X] Support IE 11
  [ ] if mobile browser than button xs
  [ ] restore all styles attribute if we replaced the original content with the tagged content
  [ ] verify that no content/structure of original page lost during injected smil tagged elements
@@ -9,6 +10,7 @@
 const
     $ = require('jquery'),
     Backbone = require('backbone'),
+    Promise = require('es6-promise-polyfill').Promise,
     SiteFilter = require('./site-filter'),
     MediaOverlay = require('./media-overlay.js'),
     PlayerView = require('./view/player'),
@@ -20,6 +22,7 @@ SiteFilter.$ = $;
 require('./css/style.css');
 
 const HOST_TTS_SERVICE = getPathOfTTSService();
+console.log("HOST_TTS_SERVICE: " + HOST_TTS_SERVICE);
 const JOB_BASE_PATH = HOST_TTS_SERVICE + '/static/';
 const TAGGED_CONTENT = '/epub/EPUB/daisy3-2.xhtml';
 const SMIL = '/epub/EPUB/mo/daisy3-2.smil';
@@ -187,11 +190,26 @@ function sendData(data) {
 
 function getPathOfTTSService() {
 
-    // ie ? document.currentScript
-    if (document.currentScript) {
-        const thisScriptFullPath = document.currentScript.src;
+    const currentScript = document.currentScript || (function() {
+            var scripts = document.getElementsByTagName('script');
+            return scripts[scripts.length - 1];
+    })();
+    
+    if (currentScript) {
+        const thisScriptFullPath = currentScript.src;
         console.log('currentScriptFullPath : ' + thisScriptFullPath);
-        const url = new URL(thisScriptFullPath);
+        
+        const url = document.createElement('a');
+        url.href = thisScriptFullPath;
+        //
+        // parser.protocol; // => "http:"
+        // parser.hostname; // => "example.com"
+        // parser.port;     // => "3000"
+        // parser.pathname; // => "/pathname/"
+        // parser.search;   // => "?search=test"
+        // parser.hash;     // => "#hash"
+        // parser.host; // => "example.com:3000"
+        // const url = new URL(thisScriptFullPath); // not compatible with IE :-(
         return url.protocol + '//' + url.host;
     } else
         throw Exception('Cannot get path to TTS service. Really bad!');
