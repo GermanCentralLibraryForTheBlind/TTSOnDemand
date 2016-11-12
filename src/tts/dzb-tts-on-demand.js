@@ -13,6 +13,7 @@ const
     sem = require('semaphore')(1),
     lockFile = require('lockfile'),
     waitUntil = require('wait-until'),
+    request = require('request'),
     exec = require('child_process').exec;
 
 
@@ -64,7 +65,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
         const jobPath = generateJobPath(jobID);
 
         console.log("[INFO] Job ID: " + jobID);
-        
+
         sem.take(function () {
             // Limit simultaneous access of tts generator structure.
             // It is used to prevent a concurrent situation between caching client and user client.
@@ -86,44 +87,52 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                 return;
             }
 
-            createTmpFolderForJob(jobPath);
+            checkTTSServiceIsUp().then(function () {
+                // dp service is up we can go on
 
-            $ = normalizeClientContent($);
-            saveAsDTBook($, jobPath);
-            // return;
-            console.log("[INFO] Write normalized page for job " + jobID + " ready.");
-            //console.log($.html());
+                createTmpFolderForJob(jobPath);
 
-            dtbookToEpub3(jobPath).then(function (result) {
+                $ = normalizeClientContent($);
+                saveAsDTBook($, jobPath);
+                // return;
+                console.log("[INFO] Write normalized page for job " + jobID + " ready.");
+                //console.log($.html());
 
-                if (result !== null && result.stdout && detailedLog) {
-                    console.log('[DEBUG] ' + result.stdout);
-                }
-                console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
-                return extractResult(jobPath);
+                dtbookToEpub3(jobPath).then(function (result) {
+
+                    if (result !== null && result.stdout && detailedLog) {
+                        console.log('[DEBUG] ' + result.stdout);
+                    }
+                    console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
+                    return extractResult(jobPath);
+
+                }).catch(function (err) {
+                    lockFile.unlockSync(jobPath + JOB_LOCK);
+                    // extractResult
+                    saveFailedJobData(jobPath, jobID);
+                    reject(err);
+
+                }).then(function (result) {
+
+                    // console.log(result);
+                    // if(fs.accessSync(jobPath))
+                    const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
+                    if (!fs.existsSync(audioFile)) {
+                        console.error('[ERROR] Job has no audio file!');
+                        lockFile.unlockSync(jobPath + JOB_LOCK);
+                        saveFailedJobData(jobPath, jobID);
+                        return reject('[ERROR] Job has no audio file!');
+                    }
+
+                    lockFile.unlockSync(jobPath + JOB_LOCK);
+
+                    resolve({jobID: jobID});
+                });
 
             }).catch(function (err) {
-                lockFile.unlockSync(jobPath + JOB_LOCK);
-                // extractResult
-                saveFailedJobData(jobPath, jobID);
+
+                // dp is down
                 reject(err);
-
-            }).then(function (result) {
-
-                // console.log(result);
-                // if(fs.accessSync(jobPath))
-                const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
-                if (!fs.existsSync(audioFile)) {
-                    console.error('[ERROR] Job has no audio file!');
-                    lockFile.unlockSync(jobPath + JOB_LOCK);
-                    saveFailedJobData(jobPath, jobID);
-                    return reject('[ERROR] Job has no audio file!');
-                }
-
-                lockFile.unlockSync(jobPath + JOB_LOCK);
-
-                resolve({jobID: jobID});
-
             });
         }); // promise end
     });
@@ -133,7 +142,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 function saveFailedJobData(jobPath, jobId) {
 
     console.error('[ERROR] Save failed job data: ' + jobPath);
-    
+
     const pathToFailedJob = BASE_PATH + 'error/' + jobId;
     fsExtra.removeSync(pathToFailedJob);
     fsExtra.copy(pathToFailedJob, {clobber: true}, function (err) {
@@ -211,6 +220,19 @@ function execCmd(cmd) {
                     stderr: stderr
                 });
             }
+        });
+    });
+}
+
+function checkTTSServiceIsUp() {
+
+    return new Promise(function (resolve, reject) {
+
+        request('http://localhost:8181/ws', function (error, response) {
+            if (error) {
+                return reject('[ERROR] TTS service is not up');
+            }
+            resolve();
         });
     });
 }
