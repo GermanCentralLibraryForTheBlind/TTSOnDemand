@@ -109,7 +109,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
                 }).catch(function (err) {
 
-                    console.error("[Error] DP2 -> Dtbook to epub3 for job " + jobID + " err " + err + "!");
+                    console.error("[ERROR] DP2 -> Dtbook to epub3 for job " + jobID + " err " + err + "!");
                     lockFile.unlockSync(jobPath + JOB_LOCK);
                     // extractResult
                     saveFailedJobData(jobPath, jobID);

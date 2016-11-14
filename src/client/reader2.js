@@ -41,7 +41,7 @@ const config = {
 
 
 $(document).ready(function () {
-
+    
     $(config.addButtonTo).prepend($(playerTemplate));
 
     $("#" + config.btnRead).click(function (event) {
@@ -79,6 +79,10 @@ $(document).ready(function () {
         });
 
     });
+
+    // $(document).bind('keydown', 'alt+v', function () {
+    //     $("#" + config.btnRead).click();
+    // });
     console.log("ready!");
 });
 
