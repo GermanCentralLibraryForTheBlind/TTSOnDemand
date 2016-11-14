@@ -107,13 +107,16 @@ var router = function (app) {
     function caching() {
 
         const start = moment(new Date());
-        console.log('\n\n[INFO] Start caching at: ' + start.format() + '\n\n');
+
+        console.log('\n\n[INFO] ********************************************');
+        console.log('[INFO] Start caching at: ' + start.format());
+        console.log('[INFO] ********************************************\n\n');
 
         const config = {content: ['.sectionWrapperMain', '#content']};
 
         getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
 
-            console.log('[INFO] Found ' + refsToArticles.length + ' article refs');
+            console.log('[INFO] Found ' + refsToArticles.length + ' articles refs\n');
 
             refsToArticles.forEach(function (item, i) {
 
