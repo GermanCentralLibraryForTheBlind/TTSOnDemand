@@ -105,25 +105,15 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                     }
                     console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
                     
-                    const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
-                    if (!fs.existsSync(audioFile)) {
-                        
-                        const msg = '[ERROR] Job ' + jobID + ' has no audio file!';
-                        lockFile.unlockSync(jobPath + JOB_LOCK);
-                        console.error(msg);
-                        saveFailedJobData(jobPath, jobID);
-                        return reject(msg);
-                    }
-                    
                     return extractResult(jobPath);
 
                 }).catch(function (err) {
 
-                    console.error("[Error] DP2 -> Dtbook to epub3 for job " + jobID + "!");
+                    console.error("[Error] DP2 -> Dtbook to epub3 for job " + jobID + " err " + err + "!");
                     lockFile.unlockSync(jobPath + JOB_LOCK);
                     // extractResult
                     saveFailedJobData(jobPath, jobID);
-                    reject(err);
+                    return reject(err);
 
                 }).then(function (result) {
 
@@ -132,6 +122,16 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
                     lockFile.unlockSync(jobPath + JOB_LOCK);
 
+                    const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
+                    if (!fs.existsSync(audioFile)) {
+
+                        const msg = '[ERROR] Job ' + jobID + ' has no audio file!';
+                        lockFile.unlockSync(jobPath + JOB_LOCK);
+                        console.error(msg);
+                        saveFailedJobData(jobPath, jobID);
+                        return reject(msg);
+                    }
+                    
                     resolve({jobID: jobID});
                 });
 

@@ -11,6 +11,7 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     fs = require('fs'),
     moment = require('moment'),
     ip = require('ip'),
+    sem = require('semaphore')(1),
     SiteFilter = require('./../client/site-filter');
 
 var cachingIntervall;
@@ -157,18 +158,22 @@ var router = function (app) {
                     // // post the data
                     // req.write($normalizedContent.html());
                     // req.end();
-                    generator.textToSpeech($normalizedContent.html()).then(function (result) {
+                    sem.take(function () {
+                        generator.textToSpeech($normalizedContent.html()).then(function (result) {
 
-                        console.log('\n\n[INFO] Result of caching ' + JSON.stringify(result));
-                        const end = moment(new Date());
-                        const diff = moment.duration(end.diff(start));
-                        const duration = moment.utc(diff.asMilliseconds()).format("HH:mm:ss.SSS");
-                        console.log('[INFO] End of Job: ' + end.format());
-                        console.log('[INFO] Duration since start caching: ' + duration + '\n\n');
+                            console.log('\n\n[INFO] Result of caching ' + JSON.stringify(result));
+                            const end = moment(new Date());
+                            const diff = moment.duration(end.diff(start));
+                            const duration = moment.utc(diff.asMilliseconds()).format("HH:mm:ss.SSS");
+                            console.log('[INFO] End of Job: ' + end.format());
+                            console.log('[INFO] Duration since start caching: ' + duration + '\n\n');
+                            sem.leave();
 
-                    }).catch(function (err) {
-                        // return handleError(res, err, 'Nothing is alright! Something goes wrong.');
-                        console.error('[ERROR] caching of job went wrong: ' + err);
+                        }).catch(function (err) {
+                            // return handleError(res, err, 'Nothing is alright! Something goes wrong.');
+                            console.error('[ERROR] caching of job went wrong: ' + err);
+                            sem.leave();
+                        });
                     });
 
                 });

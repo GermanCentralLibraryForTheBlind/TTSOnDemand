@@ -48,7 +48,7 @@
     "webservice-test": "src/server/test/test-tts-webservice.js",
     "build-bundle": "node_modules/.bin/browserify -t node-lessify -t brfs  src/client/reader2.js > public/bundle.js && node_modules/.bin/browserify -t node-lessify -t brfs  -t uglifyify src/client/reader2.js > public/bundle-prod.js",
     "watchify-bundle": "node_modules/.bin/watchify -t node-lessify -t brfs  src/client/reader2.js -o public/bundle.js -v",
-    "clean-tmp": "node ./node_modules/.bin/rimraf tmp/*"
+    "clean": "node ./node_modules/.bin/rimraf tmp/* && node ./node_modules/.bin/rimraf error/*"
   },
   "devDependencies": {
     "backbone": "^1.3.3",
