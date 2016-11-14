@@ -30,6 +30,7 @@
     "public-ip": "^2.0.1",
     "querystring": "^0.2.0",
     "request": "^2.74.0",
+    "rimraf": "^2.5.4",
     "semaphore": "^1.0.5",
     "spinkit": "^1.2.5",
     "underscore": "^1.8.3",
@@ -46,7 +47,8 @@
     "kill-service": "./node_modules/.bin/pm2 stop ecosystem.config.js",
     "webservice-test": "src/server/test/test-tts-webservice.js",
     "build-bundle": "node_modules/.bin/browserify -t node-lessify -t brfs  src/client/reader2.js > public/bundle.js && node_modules/.bin/browserify -t node-lessify -t brfs  -t uglifyify src/client/reader2.js > public/bundle-prod.js",
-    "watchify-bundle": "node_modules/.bin/watchify -t node-lessify -t brfs  src/client/reader2.js -o public/bundle.js -v"
+    "watchify-bundle": "node_modules/.bin/watchify -t node-lessify -t brfs  src/client/reader2.js -o public/bundle.js -v",
+    "clean-tmp": "node ./node_modules/.bin/rimraf tmp/*"
   },
   "devDependencies": {
     "backbone": "^1.3.3",
