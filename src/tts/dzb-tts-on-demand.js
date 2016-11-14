@@ -71,7 +71,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
             // It is used to prevent a concurrent situation between caching client and user client.
 
             if (fs.existsSync(jobPath)) {
-                sem.leave();
+                removeLock();
 
                 // A job data will be requested the first time then the tts generator will produce it
                 // but the same job will be multiple requested on the same time then it wait until the first
@@ -104,9 +104,22 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                         console.log('[DEBUG] ' + result.stdout);
                     }
                     console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
+                    
+                    const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
+                    if (!fs.existsSync(audioFile)) {
+                        
+                        const msg = '[ERROR] Job ' + jobID + ' has no audio file!';
+                        lockFile.unlockSync(jobPath + JOB_LOCK);
+                        console.error(msg);
+                        saveFailedJobData(jobPath, jobID);
+                        return reject(msg);
+                    }
+                    
                     return extractResult(jobPath);
 
                 }).catch(function (err) {
+
+                    console.error("[Error] DP2 -> Dtbook to epub3 for job " + jobID + "!");
                     lockFile.unlockSync(jobPath + JOB_LOCK);
                     // extractResult
                     saveFailedJobData(jobPath, jobID);
@@ -116,13 +129,6 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
                     // console.log(result);
                     // if(fs.accessSync(jobPath))
-                    const audioFile = jobPath + '/epub/EPUB/audio/part0000_00_000.mp3';
-                    if (!fs.existsSync(audioFile)) {
-                        console.error('[ERROR] Job has no audio file!');
-                        lockFile.unlockSync(jobPath + JOB_LOCK);
-                        saveFailedJobData(jobPath, jobID);
-                        return reject('[ERROR] Job has no audio file!');
-                    }
 
                     lockFile.unlockSync(jobPath + JOB_LOCK);
 
@@ -130,7 +136,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                 });
 
             }).catch(function (err) {
-
+                removeLock();
                 // dp is down
                 reject(err);
             });
@@ -139,18 +145,23 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 };
 
 
+function removeLock() {
+    sem.leave();
+}
+
 function saveFailedJobData(jobPath, jobId) {
 
-    console.error('[ERROR] Save failed job data: ' + jobPath);
+    console.error('[ERROR] Save failed job data: ' + jobId);
 
-    const pathToFailedJob = BASE_PATH + 'error/' + jobId;
-    fsExtra.removeSync(pathToFailedJob);
-    fsExtra.copy(pathToFailedJob, {clobber: true}, function (err) {
+    const copyFailedJobTo = BASE_PATH + 'error/' + jobId;
+    fsExtra.removeSync(copyFailedJobTo);
+    fsExtra.copy(jobPath, copyFailedJobTo, {clobber: true}, function (err) {
 
         fsExtra.removeSync(jobPath);
         if (err)
             return console.error('[ERROR] Copy data of failed job: ' + err);
-        // console.log("success!")
+        
+        console.log('[INFO] Success of copy failed job' + jobId + ' data!');
     });
 }
 
@@ -256,7 +267,7 @@ function createTmpFolderForJob(jobPath) {
 
     lockFile.lockSync(jobPath + JOB_LOCK);
 
-    sem.leave();
+    removeLock();
 }
 
 
