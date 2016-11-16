@@ -10,6 +10,8 @@ module.exports = {
             watch: true,
             env: {
                 NODE_ENV: "production"
+                // ,
+                // MODE: "DEBUG"
             }
         }
     ]

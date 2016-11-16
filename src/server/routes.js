@@ -161,12 +161,12 @@ var router = function (app) {
                     sem.take(function () {
                         generator.textToSpeech($normalizedContent.html()).then(function (result) {
 
-                            console.log('\n\n[INFO] Result of caching ' + JSON.stringify(result));
+                            // console.log('\n\n[INFO] Result of caching ' + JSON.stringify(result));
                             const end = moment(new Date());
                             const diff = moment.duration(end.diff(start));
                             const duration = moment.utc(diff.asMilliseconds()).format("HH:mm:ss.SSS");
-                            console.log('[INFO] End of Job: ' + end.format());
-                            console.log('[INFO] Duration since start caching: ' + duration + '\n\n');
+                            // console.log('[INFO] End of Job: ' + end.format());
+                            // console.log('[INFO] Duration since start caching: ' + duration + '\n\n');
                             sem.leave();
 
                         }).catch(function (err) {

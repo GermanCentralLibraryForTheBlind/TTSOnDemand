@@ -29,6 +29,8 @@ Filter.skip = function ($content) {
                 return;
             if ($this.parents('.conInline').length !== 0)
                 return;
+            if ($this.parents('.firstMediaFull').length !== 0)
+                return;
             //**************************************************************************
 
             var $p = Filter.$('<p>');
