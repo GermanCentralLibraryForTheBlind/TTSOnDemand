@@ -1,5 +1,5 @@
 /* todo:
- [ ] if the player invisible make the elements aria-hidden="true"
+ [ ] if the player menu is invisible make the menu entries aria-hidden="true"
  [X] Support IE 11
  [ ] if mobile browser than button xs
  [ ] restore all styles attribute if we replaced the original content with the tagged content
@@ -32,6 +32,7 @@ fixBootstrapFontPath();
 const playerTemplate = fs.readFileSync(__dirname + '/templates/player-view.html', 'utf8');
 
 var player;
+var model;
 
 const config = {
     btnRead: 'btnRead',
@@ -41,51 +42,54 @@ const config = {
 
 
 $(document).ready(function () {
-    
+
     $(config.addButtonTo).prepend($(playerTemplate));
 
-    $("#" + config.btnRead).click(function (event) {
-
-        toogleProcessSpinner();
-
-        if (player && player.isLoaded()) {
-
-            // start playback  at the beginning
-            player.stop();
-            player.playpause();
-            toogleProcessSpinner();
-            return;
-        }
-
-
-        const $content = $(config.content[0], config.content[1])
-        const $normalizedContent = SiteFilter.skip($content);
-
-        sendData($normalizedContent.html()).then(function (res) {
-
-            toogleProcessSpinner();
-            if(res.status >= 300) {
-                alert('Somethings went wrong! Status: ' + res.status + ' ' + res.statusText);
-                return;
-            }
-            const result = JSON.parse(res.response);
-            //console.log(result);
-            showPlayerMenu();
-            readContent(result.jobID);
-
-        }).catch(function (err) {
-            toogleProcessSpinner();
-            console.error(err);
-        });
-
-    });
+    $("#" + config.btnRead).click(onButtonReaderClick);
 
     // $(document).bind('keydown', 'alt+v', function () {
     //     $("#" + config.btnRead).click();
     // });
-    console.log("ready!");
+    initPlayer();
+    console.log("tts-player is ready!");
 });
 
+
+function onButtonReaderClick () {
+
+    toogleProcessSpinner();
+
+    if (player && player.isLoaded()) {
+
+        // start playback  at the beginning
+        player.stop();
+        player.playpause();
+        toogleProcessSpinner();
+        return;
+    }
+
+
+    const $content = $(config.content[0], config.content[1])
+    const $normalizedContent = SiteFilter.skip($content);
+
+    sendData($normalizedContent.html()).then(function (res) {
+
+        toogleProcessSpinner();
+        if (res.status >= 300) {
+            alert('Somethings went wrong! Status: ' + res.status + ' ' + res.statusText);
+            return;
+        }
+        const result = JSON.parse(res.response);
+        //console.log(result);
+        showPlayerMenu();
+        readContent(result.jobID);
+
+    }).catch(function (err) {
+        toogleProcessSpinner();
+        console.error(err);
+    });
+
+}
 
 function showPlayerMenu() {
 
@@ -133,6 +137,8 @@ function readContent(jobID) {
 
             const $el = $(this);
             const id = $el.attr('id');
+            if (id === undefined || id.indexOf('ID-TTS-') === -1) // TODO get const from site filter
+                return;
 
             const ttsCounterpart = tts.find("#" + id);
             if (ttsCounterpart.length > 0) {
@@ -141,35 +147,39 @@ function readContent(jobID) {
                 $el.append(ttsCounterpart.contents());
             }
             else
-                console.log('Element ' + id + ' doesnt exists???');
+                console.log('Lost element ' + id + 'during tts process???');
 
         }).promise().done(function () {
 
-
-            var model = new MediaOverlay({"smil_url": JOB_BASE_PATH + jobID + SMIL});
-
-            model.addSkipType("pagebreak");
-            model.addSkipType("sidebar");
-            model.addEscapeType("table-row");
-
-            const $content = $(config.content[0], config.content[1]);
-
-            if ($content == null)
-                throw 'Highlighting area not found??';
-
-            /***************************************************************************
-             * backbone views
-             ***************************************************************************/
-            const TextArea = Backbone.View.extend(TextAreaView);
-            new TextArea({model: model, el: $content});
-
-            const Player = Backbone.View.extend(PlayerView);
-            player = new Player({model: model, el: $("#controls")});
-
+            model.setSmilUrl(JOB_BASE_PATH + jobID + SMIL);
             player.playpause();
 
         });
     });
+}
+
+function initPlayer() {
+
+    model = new MediaOverlay();
+
+    model.addSkipType("pagebreak");
+    model.addSkipType("sidebar");
+    model.addEscapeType("table-row");
+
+    const $content = $(config.content[0], config.content[1]);
+
+    if ($content == null)
+        throw 'Highlighting area not found??';
+
+    /***************************************************************************
+     * backbone views
+     ***************************************************************************/
+    const TextArea = Backbone.View.extend(TextAreaView);
+    new TextArea({model: model, el: $content});
+
+    const Player = Backbone.View.extend(PlayerView);
+    player = new Player({model: model, el: $("#controls")});
+
 }
 
 function sendData(data) {
@@ -194,15 +204,15 @@ function sendData(data) {
 
 function getPathOfTTSService() {
 
-    const currentScript = document.currentScript || (function() {
+    const currentScript = document.currentScript || (function () {
             var scripts = document.getElementsByTagName('script');
             return scripts[scripts.length - 1];
-    })();
-    
+        })();
+
     if (currentScript) {
         const thisScriptFullPath = currentScript.src;
         console.log('currentScriptFullPath : ' + thisScriptFullPath);
-        
+
         const url = document.createElement('a');
         url.href = thisScriptFullPath;
         //

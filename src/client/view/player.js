@@ -43,7 +43,7 @@ module.exports = {
     playpause: function () {
         var self = this;
         // load a file if we haven't already
-        if (this.is_loaded == false) {
+        if (this.is_loaded === false) {
             this.model.bind("change:is_ready", onready);
             function onready() {
                 self.model.unbind("change:is_ready", onready);
