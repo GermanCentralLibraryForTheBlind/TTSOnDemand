@@ -33,7 +33,10 @@ var router = function (app) {
 
         if (req.method === 'POST') {
 
-            console.info('[INFO] POST request  from ' + fullUrl(req));
+            var userAgent = '';
+            try { userAgent = req.headers['user-agent'] } catch(err) {}
+            
+            console.info('[INFO] POST request  from ' + fullUrl(req) + ' userAgent: ' +userAgent);
 
             req.setEncoding('utf8');
 
