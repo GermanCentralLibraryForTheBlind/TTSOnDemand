@@ -44,6 +44,7 @@
     "tts-webservice-prod-state": "./node_modules/.bin/pm2 show tts-webservice",
     "restart-service": "./node_modules/.bin/pm2 restart all",
     "logs": "./node_modules/.bin/pm2 logs",
+    "flush-logs": "./node_modules/.bin/pm2 flush",
     "kill-service": "./node_modules/.bin/pm2 stop ecosystem.config.js",
     "webservice-test": "src/server/test/test-tts-webservice.js",
     "build-bundle": "node_modules/.bin/browserify -t node-lessify -t brfs  src/client/reader2.js > public/bundle.js && node_modules/.bin/browserify -t node-lessify -t brfs  -t uglifyify src/client/reader2.js > public/bundle-prod.js",
