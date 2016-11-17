@@ -9,7 +9,7 @@ module.exports = {
             script: "./src/server/tts-webservice.js",
             watch: true,
             env: {
-                NODE_ENV: ""
+                NODE_ENV: "production"
                 // ,
                 // MODE: "DEBUG"
             }
