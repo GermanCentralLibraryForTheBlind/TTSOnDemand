@@ -34,9 +34,12 @@ var router = function (app) {
         if (req.method === 'POST') {
 
             var userAgent = '';
-            try { userAgent = req.headers['user-agent'] } catch(err) {}
-            
-            console.info('[INFO] POST request  from ' + fullUrl(req) + ' userAgent: ' +userAgent);
+            try {
+                userAgent = req.headers['user-agent']
+            } catch (err) {
+            }
+
+            console.info('[INFO] POST request  from  userAgent: ' + userAgent + ' url: ' + fullUrl(req));
 
             req.setEncoding('utf8');
 
@@ -57,9 +60,34 @@ var router = function (app) {
         }
     });
 
+    app.get("/logs", function (req, res) {
+
+        console.log('[INFO] Request logs.');
+
+        try {
+            var child = require('child_process', {shell: true, stdio: 'inherit'}).exec('npm run logs | ./node_modules/.bin/ansi-to-html -n -x');
+            
+            res.setHeader('content-type', 'text/html');
+            res.write("<style type=\"text/\css\">body {background-color: #424242;}<\/style>");
+            // pipe both stdout and stderr to response object
+            child.stdout.pipe(res, {end: false});
+            child.stderr.pipe(res, {end: false});
+            // on exit close the response
+            child.on('exit', function (exitCode) {
+                // log exitCode
+                console.log('child process exit-code:', exitCode);
+                // end response
+                res.end();
+            });
+        } catch (err) {
+            res.end();
+            console.error('[ERROR] ' + err);
+        }
+    });
+
     //**********************************************************************************
-    // following routes only for testing
-    // should be later disabled
+    // routes below only using for testing
+    // TODO: should be disabled in production
     //**********************************************************************************
     app.get("/injected", function (req, res) {
 
@@ -72,7 +100,7 @@ var router = function (app) {
             page = replacements(page);
 
             var host = ip.address() + ':3000';
-            
+
             if (process.env.NODE_ENV === 'production')
                 host = 'tts.dzb.de:3000';
 
