@@ -15,6 +15,7 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     SiteFilter = require('./../client/site-filter');
 
 var cachingIntervall;
+var logProcess;
 
 var router = function (app) {
 
@@ -34,10 +35,7 @@ var router = function (app) {
         if (req.method === 'POST') {
 
             var userAgent = '';
-            try {
-                userAgent = req.headers['user-agent']
-            } catch (err) {
-            }
+            try { userAgent = req.headers['user-agent']; } catch (err) {}
 
             console.info('[INFO] POST request  from  userAgent: ' + userAgent + ' url: ' + fullUrl(req));
 
@@ -65,20 +63,26 @@ var router = function (app) {
         console.log('[INFO] Request logs.');
 
         try {
-            var child = require('child_process', {shell: true, stdio: 'inherit'}).exec('npm run logs | ./node_modules/.bin/ansi-to-html -n -x');
-            
+
+            if (!logProcess)
+                logProcess = require('child_process', {
+                    shell: true,
+                    stdio: 'inherit'
+                }).exec('npm run logs | ./node_modules/.bin/ansi-to-html -x');
+
             res.setHeader('content-type', 'text/html');
-            res.write("<style type=\"text/\css\">body {background-color: #424242;}<\/style>");
+            res.write("<style type=\"text/\css\">body,span {background-color: #424242; display:block;}<\/style>");
             // pipe both stdout and stderr to response object
-            child.stdout.pipe(res, {end: false});
-            child.stderr.pipe(res, {end: false});
+            logProcess.stdout.pipe(res, {end: false});
+            logProcess.stderr.pipe(res, {end: false});
             // on exit close the response
-            child.on('exit', function (exitCode) {
-                // log exitCode
-                console.log('child process exit-code:', exitCode);
+            logProcess.on('exit', function (exitCode) {
+                // log exitCode@
+                console.log('logProcess process exit-code:', exitCode);
                 // end response
                 res.end();
             });
+
         } catch (err) {
             res.end();
             console.error('[ERROR] ' + err);
