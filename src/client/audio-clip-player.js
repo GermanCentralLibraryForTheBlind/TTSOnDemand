@@ -294,6 +294,7 @@ var AudioClipPlayer = function () {
     function onPlayToForceAutostart() {
         debugPrint("onPlayToForceAutostart");
         _audioElement.removeEventListener('play', onPlayToForceAutostart, false);
+        document.removeEventListener("mousedown", playToForceAutostart, false);
         _audioElement.pause();
     }
 
