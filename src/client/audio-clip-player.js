@@ -2,6 +2,7 @@ var AudioClipPlayer = function () {
 
 
     const isIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false;
+    const isAndroid = navigator.userAgent.toLowerCase().indexOf('android') > -1;
 
     // clip info
     var src = null;
@@ -140,7 +141,8 @@ var AudioClipPlayer = function () {
         debugPrint("Loading file " + src);
 
         // wait for 'canplay' before continuing
-        _audioElement.addEventListener("canplay", readyToSeek);
+        const readyEvent = isAndroid ? "canplaythrough" : "canplay";
+        _audioElement.addEventListener(readyEvent, readyToSeek);
         _audioElement.addEventListener("ended", ended);
 
         _audioElement.src = src;
@@ -190,7 +192,7 @@ var AudioClipPlayer = function () {
 
         _audioElement.removeEventListener("seeked", seeked);
 
-        // playToForcePreload();
+        // playToForceAutostart();
         setTimeout(function () {
             startClipTimer();
             _audioElement.play();
@@ -275,18 +277,30 @@ var AudioClipPlayer = function () {
         _audioElement.setAttribute("src", "touch/init/html5/audio.mp3");
         _audioElement.load();
     }
-    // function playToForcePreload() {
-    //     debugPrint("playToForcePreload");
-    //     _audioElement.play();
-    // }
-    //
-    // function onPlayToForcePreload() {
-    //     debugPrint("onPlayToForcePreload");
-    //     _audioElement.removeEventListener('play', onPlayToForcePreload, false);
-    //     _audioElement.pause();
-    // }
 
-    //_audioElement.addEventListener('play', onPlayToForcePreload, false);
+
+    /**************************************************************
+     *
+     *  ANDROID Support
+     *
+     **************************************************************/
+
+
+    function playToForceAutostart() {
+        debugPrint("playToForceAutostart");
+        _audioElement.play();
+    }
+
+    function onPlayToForceAutostart() {
+        debugPrint("onPlayToForceAutostart");
+        _audioElement.removeEventListener('play', onPlayToForceAutostart, false);
+        _audioElement.pause();
+    }
+
+    if(isAndroid) {
+        _audioElement.addEventListener('play', onPlayToForceAutostart, false);
+        document.addEventListener("mousedown", playToForceAutostart, false);
+    }
 
 };
 module.exports = AudioClipPlayer;
