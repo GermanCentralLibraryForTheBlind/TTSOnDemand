@@ -21,7 +21,7 @@ var router = function (app) {
 
     // Generic error handler used by all endpoints.
     function handleError(res, reason, message, code) {
-        console.log("[ERROR] " + reason);
+        console.error("[ERROR] " + reason);
         res.status(code || 500).json({"error": reason});
     }
 
@@ -48,7 +48,7 @@ var router = function (app) {
             req.on('end', function () {
                 //console.info("received data: " +data);
                 generator.textToSpeech(data).then(function (result) {
-                    //console.log(result);
+                    //debugPrint(result);
                     return res.json(result);
 
                 }).catch(function (err) {
@@ -60,7 +60,7 @@ var router = function (app) {
 
     app.get("/logs", function (req, res) {
 
-        console.log('[INFO] Request logs.');
+        debugPrint('[INFO] Request logs.');
 
         try {
 
@@ -78,7 +78,7 @@ var router = function (app) {
             // on exit close the response
             logProcess.on('exit', function (exitCode) {
                 // log exitCode@
-                console.log('logProcess process exit-code:', exitCode);
+                debugPrint('logProcess process exit-code:', exitCode);
                 // end response
                 res.end();
             });
@@ -97,7 +97,7 @@ var router = function (app) {
 
         const href = req.query.href;
 
-        //console.log(href);
+        //debugPrint(href);
 
         getPage(href, function (page) {
 
@@ -126,6 +126,7 @@ var router = function (app) {
 
     app.get("/caching/on", function (req, res) {
 
+        console.log('[INFO] caching on');
         caching();
         if (cachingIntervall === undefined)
             cachingIntervall = setInterval(caching, 600000); // 10min
@@ -143,25 +144,25 @@ var router = function (app) {
     function caching() {
 
         const start = moment(new Date());
-
-        console.log('\n\n[INFO] ********************************************');
-        console.log('[INFO] Start caching at: ' + start.format());
-        console.log('[INFO] ********************************************\n\n');
-
+        
+            debugPrint('\n\n[INFO] ********************************************');
+            debugPrint('[INFO] Start caching at: ' + start.format());
+            debugPrint('[INFO] ********************************************\n\n');
+        
         const config = {content: ['.sectionWrapperMain', '#content']};
 
         getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
 
-            console.log('[INFO] Found ' + refsToArticles.length + ' articles refs\n');
+            debugPrint('[INFO] Found ' + refsToArticles.length + ' articles refs\n');
 
             refsToArticles.forEach(function (item, i) {
 
                 const href = 'http://www.mdr.de' + item.href;
-                //console.log('[INFO] Try to load: ' + href);
+                //debugPrint('[INFO] Try to load: ' + href);
 
                 getPage(href, function (page) {
 
-                    //console.log('[INFO] Article from ' + href + ' loaded');
+                    //debugPrint('[INFO] Article from ' + href + ' loaded');
                     const $ = cheerio.load(page);
                     const $content = $(config.content[0], config.content[1]);
                     SiteFilter.$ = cheerio;
@@ -181,14 +182,14 @@ var router = function (app) {
                     // var req = http.request(options, function (res) {
                     //
                     //     res.on('end', function () {
-                    //         console.log('[INFO] End POST request :' + href);
+                    //         debugPrint('[INFO] End POST request :' + href);
                     //     });
                     //
                     // });
                     //
                     // req.setTimeout(3000);
                     // req.on('error', function (err) {
-                    //     console.log('[ERROR]  ', err);
+                    //     debugPrint('[ERROR]  ', err);
                     // });
                     // // post the data
                     // req.write($normalizedContent.html());
@@ -196,12 +197,12 @@ var router = function (app) {
                     sem.take(function () {
                         generator.textToSpeech($normalizedContent.html()).then(function (result) {
 
-                            // console.log('\n\n[INFO] Result of caching ' + JSON.stringify(result));
+                            debugPrint('\n\n[INFO] Result of caching ' + JSON.stringify(result));
                             const end = moment(new Date());
                             const diff = moment.duration(end.diff(start));
                             const duration = moment.utc(diff.asMilliseconds()).format("HH:mm:ss.SSS");
-                            // console.log('[INFO] End of Job: ' + end.format());
-                            // console.log('[INFO] Duration since start caching: ' + duration + '\n\n');
+                            debugPrint('[INFO] End of Job: ' + end.format());
+                            debugPrint('[INFO] Duration since start caching: ' + duration + '\n\n');
                             sem.leave();
 
                         }).catch(function (err) {
@@ -231,8 +232,8 @@ var router = function (app) {
                     var data = {};
                     data.ID = dataId;
                     data.href = href;
-                    // console.log(index + ": " + data.ID);
-                    // console.log("href : " + data.href);
+                    // debugPrint(index + ": " + data.ID);
+                    // debugPrint("href : " + data.href);
                     refsToArticles.push(data);
                 }
             });
@@ -265,7 +266,7 @@ var router = function (app) {
     function inject(page, host) {
         const $ = cheerio.load(page);
         const scriptPath = host + '/public/bundle.js';
-        console.log('[INFO] Inject path: ' + scriptPath);
+        debugPrint('[INFO] Inject path: ' + scriptPath);
         $('body').append($('<script src=\"' + scriptPath + '\"><\/script>'));
         return $.html();
     }
@@ -278,5 +279,11 @@ var router = function (app) {
         });
     }
 };
+
+function debugPrint(msg) {
+    if(process.env.MODE === 'DEBUG') {
+        debugPrint(msg);
+    }
+}
 
 module.exports = router;

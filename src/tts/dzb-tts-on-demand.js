@@ -55,16 +55,16 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
     return new Promise(function (resolve, reject) {
 
-        //console.log(page);
+        //debugPrint(page);
         //return resolve('okay!'); // only testing
         prepareTMPFolder();
 
         var $ = cheerio.load(contentFromClient);
-        //console.log($.html());
+        //debugPrint($.html());
         const jobID = getMD5Checksum($);
         const jobPath = generateJobPath(jobID);
 
-        console.log("[INFO] Job ID: " + jobID);
+        debugPrint("[INFO] Job ID: " + jobID);
 
         sem.take(function () {
             // Limit simultaneous access of tts generator structure.
@@ -81,7 +81,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                         return (lockFile.checkSync(jobPath + JOB_LOCK) ? false : true);
                     })
                     .done(function () {
-                        console.log("[INFO] Nothing to do -> Job " + jobID + " is already cached.");
+                        debugPrint("[INFO] Nothing to do -> Job " + jobID + " is already cached.");
                         return resolve({jobID: jobID});
                     });
                 return;
@@ -95,16 +95,16 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                 $ = normalizeClientContent($);
                 saveAsDTBook($, jobPath);
                 // return;
-                console.log("[INFO] Write normalized page for job " + jobID + " ready.");
-                //console.log($.html());
+                debugPrint("[INFO] Write normalized page for job " + jobID + " ready.");
+                //debugPrint($.html());
 
                 dtbookToEpub3(jobPath).then(function (result) {
 
-                    if (result !== null && result.stdout && detailedLog) {
-                        console.log('[DEBUG] ' + result.stdout);
+                    if (result !== null && result.stdout) {
+                        debugPrint('[DEBUG] ' + result.stdout);
                     }
-                    console.log("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
-                    
+                    debugPrint("[INFO] DP2 -> Dtbook to epub3 for job " + jobID + " ready!");
+
                     return extractResult(jobPath);
 
                 }).catch(function (err) {
@@ -117,7 +117,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
 
                 }).then(function (result) {
 
-                    // console.log(result);
+                    // debugPrint(result);
                     // if(fs.accessSync(jobPath))
 
                     lockFile.unlockSync(jobPath + JOB_LOCK);
@@ -131,7 +131,7 @@ TTSGenerator.textToSpeech = function (contentFromClient) {
                         saveFailedJobData(jobPath, jobID);
                         return reject(msg);
                     }
-                    
+
                     resolve({jobID: jobID});
                 });
 
@@ -160,8 +160,8 @@ function saveFailedJobData(jobPath, jobId) {
         fsExtra.removeSync(jobPath);
         if (err)
             return console.error('[ERROR] Copy data of failed job: ' + err);
-        
-        console.log('[INFO] Success of copy failed job' + jobId + ' data!');
+
+        debugPrint('[INFO] Success of copy failed job' + jobId + ' data!');
     });
 }
 
@@ -211,15 +211,13 @@ function dtbookToEpub3(jobPath) {
 
 function execCmd(cmd) {
 
-    if (detailedLog)
-        console.log(cmd);
+    debugPrint(cmd);
 
     return new Promise(function (resolve, reject) {
 
         exec(cmd, function (error, stdout, stderr) {
 
-            //  if (detailedLog)
-            //     console.log("[DEBUG] :  " + stdout);
+            //     debugPrint("[DEBUG] :  " + stdout);
 
             if (stdout.indexOf('[ERROR]	ERR:') > -1)
                 reject('[ERROR] Error exec ' + cmd);
@@ -307,6 +305,12 @@ function unwrap($, el) {
         var $this = $(this);
         $(this).after($this.contents()).remove();
     });
+}
+
+function debugPrint(msg) {
+    if (detailedLog === true) {
+        debugPrint(msg);
+    }
 }
 
 module.exports = TTSGenerator;
