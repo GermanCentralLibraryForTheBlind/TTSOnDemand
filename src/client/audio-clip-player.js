@@ -155,6 +155,8 @@ var AudioClipPlayer = function () {
      */
     function readyToSeek() {
 
+        setTimeout(function() {
+
         debugPrint("The browser can start play the audio.");
 
         _audioElement.removeEventListener("canplay", readyToSeek);
@@ -165,6 +167,8 @@ var AudioClipPlayer = function () {
         }
 
         continueRender();
+
+        }, isAndroid ? 1000 : 0);
     }
 
 
