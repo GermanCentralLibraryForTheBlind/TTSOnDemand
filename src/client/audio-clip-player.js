@@ -193,10 +193,10 @@ var AudioClipPlayer = function () {
         _audioElement.removeEventListener("seeked", seeked);
 
         // playToForceAutostart();
+        startClipTimer();
         setTimeout(function () {
-            startClipTimer();
             _audioElement.play();
-        }, 500);
+        }, isAndroid ? 1000 : 500);
     }
 
     function startClipTimer() {
