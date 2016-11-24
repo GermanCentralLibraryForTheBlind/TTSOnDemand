@@ -3,6 +3,7 @@ var AudioClipPlayer = function () {
 
     const isIOS = navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false;
     const isAndroid = navigator.userAgent.toLowerCase().indexOf('android') > -1;
+    const readyEvent = isAndroid ? "canplaythrough" : "canplay";
 
     // clip info
     var src = null;
@@ -71,7 +72,8 @@ var AudioClipPlayer = function () {
         clipEnd = clipEndTime;
         forceReset = shouldForceReset;
 
-        debugPrint("playing " + src + " from " + clipBegin + " to " + clipEnd);
+        debugPrint("playing " + src);
+        debugPrint("from " + clipBegin + " to " + clipEnd);
 
         // make sure we haven't already created an element for this audio file
         if (_audioElement === null || _audioElement.getAttribute("src") !== src)
@@ -141,7 +143,6 @@ var AudioClipPlayer = function () {
         debugPrint("Loading file " + src);
 
         // wait for 'canplay' before continuing
-        const readyEvent = isAndroid ? "canplaythrough" : "canplay";
         _audioElement.addEventListener(readyEvent, readyToSeek);
         _audioElement.addEventListener("ended", ended);
 
@@ -155,11 +156,9 @@ var AudioClipPlayer = function () {
      */
     function readyToSeek() {
 
-        setTimeout(function() {
-
         debugPrint("The browser can start play the audio.");
 
-        _audioElement.removeEventListener("canplay", readyToSeek);
+        _audioElement.removeEventListener(readyEvent, readyToSeek);
 
         if (clipEnd > _audioElement.duration) {
             debugPrint("File duration: " + _audioElement.duration + " is shorter" +
@@ -168,8 +167,6 @@ var AudioClipPlayer = function () {
         }
 
         continueRender();
-
-        }, isAndroid ? 1000 : 0);
     }
 
 
@@ -183,7 +180,7 @@ var AudioClipPlayer = function () {
             setTimeout(function () {
                 startClipTimer();
                 _audioElement.play();
-            }, 1000);
+            }, 500);
 
             console.log('Current time within the clip.');
 
