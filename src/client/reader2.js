@@ -95,6 +95,7 @@ function showPlayerMenu() {
 
     $('.mnuPlayer').show();
     addListenerToPlayerMnu();
+    require('./player-menu');
 }
 
 function addListenerToPlayerMnu() {
