@@ -162,7 +162,8 @@ var AudioClipPlayer = function () {
         _audioElement.removeEventListener("canplay", readyToSeek);
 
         if (clipEnd > _audioElement.duration) {
-            debugPrint("File is shorter than specified clipEnd time");
+            debugPrint("File duration: " + _audioElement.duration + " is shorter" +
+                " than specified clipEnd: " + clipEnd + " time");
             clipEnd = _audioElement.duration;
         }
 
@@ -174,14 +175,18 @@ var AudioClipPlayer = function () {
 
     function continueRender() {
 
+        console.log('continueRender');
+
         // if the current time is already somewhere within the clip that we want to play, then just let it keep playing
         if (forceReset === false && _audioElement.currentTime > clipBegin && _audioElement.currentTime < clipEnd) {
 
             setTimeout(function () {
                 startClipTimer();
                 _audioElement.play();
-            }, 500);
-            //
+            }, 1000);
+
+            console.log('Current time within the clip.');
+
         } else {
 
             _audioElement.addEventListener("seeked", seeked);
