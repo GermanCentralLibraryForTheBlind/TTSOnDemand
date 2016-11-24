@@ -35,31 +35,41 @@ var AudioClipPlayer = function () {
             console.log('DEBUG is on!');
 
             _audioElement.addEventListener('loadstart', function () {
-                debugPrint('loadstart');
+                debugPrint('1. loadstart');
             }, false);
-            _audioElement.addEventListener('loadeddata', function () {
-                debugPrint('loadeddata');
+            _audioElement.addEventListener('durationchange', function () {
+                debugPrint('2. durationchange');
             }, false);
             _audioElement.addEventListener('loadedmetadata', function () {
-                debugPrint('loadedmetadata');
+                debugPrint('3. loadedmetadata');
+            }, false);
+            _audioElement.addEventListener('loadeddata', function () {
+                debugPrint('4. loadeddata');
+            }, false);
+            _audioElement.addEventListener('progress', function () {
+                debugPrint('5. progress');
             }, false);
             _audioElement.addEventListener('canplay', function () {
-                debugPrint('canplay');
-            }, false);
-            _audioElement.addEventListener('play', function () {
-                debugPrint('play');
-            }, false);
-            _audioElement.addEventListener('playing', function () {
-                debugPrint('playing');
-            }, false);
-            _audioElement.addEventListener('pause', function () {
-                debugPrint('pause');
+                debugPrint('6. canplay');
             }, false);
             _audioElement.addEventListener('canplaythrough', function () {
-                debugPrint("canplaythrough");
+                debugPrint("7. canplaythrough");
             }, false);
-
-
+            _audioElement.addEventListener('play', function () {
+                debugPrint('8. play');
+            }, false);
+            _audioElement.addEventListener('playing', function () {
+                debugPrint('9. playing');
+            }, false);
+            _audioElement.addEventListener('pause', function () {
+                debugPrint('10. pause');
+            }, false);
+            _audioElement.addEventListener('seeking', function () {
+                debugPrint('a. seeking');
+            }, false);
+            _audioElement.addEventListener('seeked', function () {
+                debugPrint('b. seeked');
+            }, false);
         }
     };
 
@@ -72,7 +82,7 @@ var AudioClipPlayer = function () {
         clipEnd = clipEndTime;
         forceReset = shouldForceReset;
 
-        debugPrint("playing " + src);
+        debugPrint("try to play " + src);
         debugPrint("from " + clipBegin + " to " + clipEnd);
 
         // make sure we haven't already created an element for this audio file
@@ -140,7 +150,7 @@ var AudioClipPlayer = function () {
 
     function loadData() {
 
-        debugPrint("Loading file " + src);
+        debugPrint('load new audio file');
 
         // wait for 'canplay' before continuing
         _audioElement.addEventListener(readyEvent, readyToSeek);
@@ -156,8 +166,6 @@ var AudioClipPlayer = function () {
      */
     function readyToSeek() {
 
-        debugPrint("The browser can start play the audio.");
-
         _audioElement.removeEventListener(readyEvent, readyToSeek);
 
         if (clipEnd > _audioElement.duration) {
@@ -172,23 +180,21 @@ var AudioClipPlayer = function () {
 
     function continueRender() {
 
-        console.log('continueRender');
+        debugPrint('Continue in the same audio file');
 
         // if the current time is already somewhere within the clip that we want to play, then just let it keep playing
         if (forceReset === false && _audioElement.currentTime > clipBegin && _audioElement.currentTime < clipEnd) {
 
-            setTimeout(function () {
-                startClipTimer();
-                _audioElement.play();
-            }, 500);
+            startClipTimer();
+            _audioElement.play();
 
-            console.log('Current time within the clip.');
+            debugPrint('Current time is within the clip.');
 
         } else {
 
             _audioElement.addEventListener("seeked", seeked);
-            console.log("setting currentTime from " + _audioElement.currentTime + " to " + clipBegin);
             _audioElement.currentTime = clipBegin;
+            debugPrint("Setting currentTime from " + _audioElement.currentTime + " to clipBegin " + clipBegin);
 
         }
 
@@ -220,7 +226,7 @@ var AudioClipPlayer = function () {
 
             if (_audioElement.currentTime >= clipEnd) {
                 clearInterval(intervalId);
-                debugPrint("clip done");
+                debugPrint("Clip is done!");
                 if (notifyClipDone !== null) {
                     notifyClipDone();
                 }
@@ -263,7 +269,7 @@ var AudioClipPlayer = function () {
      * Information form https://www.ibm.com/developerworks/library/wa-ioshtml5/
      **************************************************************/
 
-    if(isIOS) {
+    if (isIOS) {
         // workaround to bypass the known limitation
 
         if ('ontouchstart' in document.documentElement) {
@@ -275,7 +281,7 @@ var AudioClipPlayer = function () {
     }
 
     function touchInit() {
-        debugPrint('touchnInit');
+        debugPrint('touchInit');
 
         document.removeEventListener("touchstart", touchInit, false);
         document.removeEventListener("mousedown", touchInit, false);
@@ -304,7 +310,7 @@ var AudioClipPlayer = function () {
         _audioElement.pause();
     }
 
-    if(isAndroid) {
+    if (isAndroid) {
         _audioElement.addEventListener('play', onPlayToForceAutostart, false);
         document.addEventListener("mousedown", playToForceAutostart, false);
     }
