@@ -1,10 +1,5 @@
 const $player = $('#player');
-const $expandAudioBtn = $("#btn-expand-audio");
-const $collapseAudioBtn = $("#btn-collapse-audio");
-const $buttons = $("#btn-expand-audio, #btn-collapse-audio");
-
-
-$collapseAudioBtn.hide();
+const $btnCollapseExpandPlayerMenu = $("#btnCollapseExpandPlayerMenu");
 
 
 function toggleAudioExpand(expand) {
@@ -31,22 +26,13 @@ function toggleAudioExpand(expand) {
 //     setTimeout(function(){ toFocus.focus(); }, 50);
 // });
 
-$expandAudioBtn.on("click", function () {
-    var wasFocused = document.activeElement === $expandAudioBtn[0];
-    toggleAudioExpand(true);
-    $buttons.toggle();
-    if (wasFocused)
-        setTimeout(function () {
-            $collapseAudioBtn[0].focus();
-        }, 50);
+$btnCollapseExpandPlayerMenu.on("click", function () {
+    // var wasFocused = document.activeElement === $expandAudioBtn[0];
+    if($player.hasClass('expanded-audio'))
+        toggleAudioExpand(false);
+    else
+        toggleAudioExpand(true);
+
+    $('#btnCollapseExpandPlayerMenu span').toggleClass('glyphicon-save glyphicon-open');
 });
 
-$collapseAudioBtn.on("click", function () {
-    var wasFocused = document.activeElement === $collapseAudioBtn[0];
-    toggleAudioExpand(false);
-    $buttons.toggle();
-    if (wasFocused)
-        setTimeout(function () {
-            $expandAudioBtn[0].focus();
-        }, 50);
-});

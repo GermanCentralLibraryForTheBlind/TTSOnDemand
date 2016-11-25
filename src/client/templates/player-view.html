@@ -29,72 +29,66 @@
             <!--<button onclick="VolumeUp('music.mp3','audio');" class="btn btn-custom">-->
             <!--<span title="Volume Up" id="volumeup" class="glyphicon glyphicon-plus aligned"></span>-->
             <!--</button>-->
-            <button tabindex="1" id="btn-collapse-audio" type="button" class="btn icon-collapse-audio" title="{{strings.i18n_audio_collapse}} [{{keyboard.MediaOverlaysAdvancedPanelShowHide}}]" aria-label="{{strings.i18n_audio_collapse}} [{{keyboard.MediaOverlaysAdvancedPanelShowHide}}]">
-                <span class="glyphicon glyphicon-open" aria-hidden="true"></span>
-            </button>
-            <button tabindex="1" id="btn-expand-audio" type="button" class="btn icon-expand-audio" title="{{strings.i18n_audio_expand}} [{{keyboard.MediaOverlaysAdvancedPanelShowHide}}]" aria-label="{{strings.i18n_audio_expand}} [{{keyboard.MediaOverlaysAdvancedPanelShowHide}}]" accesskey="{{keyboard.accesskeys.MediaOverlaysAdvancedPanelShowHide}}">
+            <button tabindex="1" id="btnCollapseExpandPlayerMenu" type="button" class="btn" title=" " aria-label=" ">
                 <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
             </button>
         </div>
 
-        <div id="audioExpanded" role="alert">
+        <div id="audioExpanded" class="playScroll" role="alert">
 
-            <input tabindex="1" id="time-range-slider" type="range" role="slider" min="0" aria-value-min="0" aria-valuemin="0" max="100" aria-value-max="100" aria-valuemax="100" value="0" aria-valuenow="0" aria-value-now="0" aria-valuetext="0%" aria-value-text="0%" data-value="0" title="{{strings.i18n_audio_time}}" aria-label="{{strings.i18n_audio_time}}"  />
+            <input tabindex="1" id="time-range-slider" type="range" role="slider" min="0" aria-value-min="0" aria-valuemin="0" max="100" aria-value-max="100" aria-valuemax="100" value="0" aria-valuenow="0" aria-value-now="0" aria-valuetext="0%" aria-value-text="0%" data-value="0" title="" aria-label=""  />
 
 
-            <button tabindex="1" id="btn-audio-rate" type="button" class="btn icon-rate-audio" title="{{strings.i18n_audio_rate_reset}} [{{keyboard.MediaOverlaysRateReset}}]" aria-label="{{strings.i18n_audio_rate_reset}} [{{keyboard.MediaOverlaysRateReset}}]" accesskey="{{keyboard.accesskeys.MediaOverlaysRateReset}}">
+            <button tabindex="1" id="btn-audio-rate" type="button" class="btn icon-rate-audio" title=" " aria-label=" " accesskey="">
                 <span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>
             </button>
 
-            <input tabindex="1" id="rate-range-slider" type="range" role="slider" min="0" aria-value-min="0" aria-valuemin="0" max="4" aria-value-max="4" aria-valuemax="4" value="1" aria-valuenow="1" aria-value-now="1" aria-valuetext="1x" aria-value-text="1x" step="0.1" title="{{strings.i18n_audio_rate}} [{{keyboard.MediaOverlaysRateDecrease}}] / [{{keyboard.MediaOverlaysRateIncrease}}]" aria-label="{{strings.i18n_audio_rate}} [{{keyboard.MediaOverlaysRateDecrease}}] / [{{keyboard.MediaOverlaysRateIncrease}}]" />
+            <input tabindex="1" id="rate-range-slider" type="range" role="slider" min="0" aria-value-min="0" aria-valuemin="0" max="4" aria-value-max="4" aria-valuemax="4" value="1" aria-valuenow="1" aria-value-now="1" aria-valuetext="1x" aria-value-text="1x" step="0.1" title="  / " aria-label="  / " />
 
             <span aria-hidden="true" tabindex="-1" id="rate-range-slider-label">1x</span>
 
-            <form action="" id="mo-sync-form">
-                <input tabindex="1" type="radio" name="mo-sync" value="default" id="mo-sync-default" class="mo-sync" checked="checked"  title="{{strings.i18n_audio_sync_default}} {{strings.i18n_audio_sync}}" aria-label="{{strings.i18n_audio_sync_default}} {{strings.i18n_audio_sync}}"> </input>
-                <label tabindex="1" for="mo-sync-default" title="{{strings.i18n_audio_sync_default}} {{strings.i18n_audio_sync}}"><span aria-hidden="true">&#8855;</span></label>
+            <!--<form action="" id="mo-sync-form">-->
+                <!--<input tabindex="1" type="radio" name="mo-sync" value="default" id="mo-sync-default" class="mo-sync" checked="checked"  title=" " aria-label=" "> </input>-->
+                <!--<label tabindex="1" for="mo-sync-default" title=" "><span aria-hidden="true">&#8855;</span></label>-->
 
-                <input tabindex="1" type="radio" name="mo-sync" value="word" id="mo-sync-word" class="mo-sync" title="{{strings.i18n_audio_sync_word}} {{strings.i18n_audio_sync}}" aria-label="{{strings.i18n_audio_sync_word}} {{strings.i18n_audio_sync}}"> </input>
-                <label tabindex="1" for="mo-sync-word" title="{{strings.i18n_audio_sync_word}} {{strings.i18n_audio_sync}}"><span aria-hidden="true">{{strings.i18n_audio_sync_word}}</span></label>
+                <!--<input tabindex="1" type="radio" name="mo-sync" value="word" id="mo-sync-word" class="mo-sync" title=" " aria-label=" "> </input>-->
+                <!--<label tabindex="1" for="mo-sync-word" title=" "><span aria-hidden="true"></span></label>-->
 
-                <input tabindex="1" type="radio" name="mo-sync" value="sentence" id="mo-sync-sentence" class="mo-sync" title="{{strings.i18n_audio_sync_sentence}} {{strings.i18n_audio_sync}}" aria-label="{{strings.i18n_audio_sync_sentence}} {{strings.i18n_audio_sync}}"> </input>
-                <label tabindex="1" for="mo-sync-sentence" title="{{strings.i18n_audio_sync_sentence}} {{strings.i18n_audio_sync}}"><span aria-hidden="true">{{strings.i18n_audio_sync_sentence}}</span></label>
+                <!--<input tabindex="1" type="radio" name="mo-sync" value="sentence" id="mo-sync-sentence" class="mo-sync" title=" " aria-label=" "> </input>-->
+                <!--<label tabindex="1" for="mo-sync-sentence" title=" "><span aria-hidden="true"></span></label>-->
 
-                <input tabindex="1" type="radio" name="mo-sync" value="paragraph" id="mo-sync-paragraph" class="mo-sync" title="{{strings.i18n_audio_sync_paragraph}} {{strings.i18n_audio_sync}}" aria-label="{{strings.i18n_audio_sync_paragraph}} {{strings.i18n_audio_sync}}"> </input>
-                <label tabindex="1" for="mo-sync-paragraph" title="{{strings.i18n_audio_sync_paragraph}} {{strings.i18n_audio_sync}}"><span aria-hidden="true">{{strings.i18n_audio_sync_paragraph}}</span></label>
-            </form>
+                <!--<input tabindex="1" type="radio" name="mo-sync" value="paragraph" id="mo-sync-paragraph" class="mo-sync" title=" " aria-label=" "> </input>-->
+                <!--<label tabindex="1" for="mo-sync-paragraph" title=" "><span aria-hidden="true"></span></label>-->
+            <!--</form>-->
 
             <div id="audio-block">
 
                 <div id="mo-highlighters">
-                    <button tabindex="1" id="mo-highlighter-0" type="button" class="btn btn-mo-highlighter" title="{{strings.i18n_audio_highlight}}: {{strings.i18n_audio_highlight_default}}" aria-label="{{strings.i18n_audio_highlight}}: {{strings.i18n_audio_highlight_default}}" aria-selected="true" data-mohighlight="0" >
-                        {{strings.i18n_audio_highlight_default}}
-                    </button>
-                    <button tabindex="1" id="mo-highlighter-1" type="button" class="btn btn-mo-highlighter" title="{{strings.i18n_audio_highlight}}: #1" aria-label="{{strings.i18n_audio_highlight}}: #1" data-mohighlight="1" >
+                    <button tabindex="1" id="mo-highlighter-1" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #1" aria-label="Hervorhebungsfarbe #1" data-mohighlight="1" >
 
                     </button>
-                    <button tabindex="1" id="mo-highlighter-2" type="button" class="btn btn-mo-highlighter" title="{{strings.i18n_audio_highlight}}: #2" aria-label="{{strings.i18n_audio_highlight}}: #2" data-mohighlight="2" >
+                    <button tabindex="1" id="mo-highlighter-2" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #2" aria-label="Hervorhebungsfarbe #2" data-mohighlight="2" >
 
                     </button>
-                    <button tabindex="1" id="mo-highlighter-3" type="button" class="btn btn-mo-highlighter" title="{{strings.i18n_audio_highlight}}: #3" aria-label="{{strings.i18n_audio_highlight}}: #3" data-mohighlight="3" >
+                    <button tabindex="1" id="mo-highlighter-3" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #3" aria-label="Hervorhebungsfarbe #3" data-mohighlight="3" >
 
                     </button>
-                    <button tabindex="1" id="mo-highlighter-4" type="button" class="btn btn-mo-highlighter" title="{{strings.i18n_audio_highlight}}: #4" aria-label="{{strings.i18n_audio_highlight}}: #4" data-mohighlight="4" >
+                    <button tabindex="1" id="mo-highlighter-4" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #4" aria-label="Hervorhebungsfarbe #4" data-mohighlight="4" >
 
                     </button>
-                    <button tabindex="1" id="mo-highlighter-5" type="button" class="btn btn-mo-highlighter" title="{{strings.i18n_audio_highlight}}: #5" aria-label="{{strings.i18n_audio_highlight}}: #5" data-mohighlight="5" >
+                    <button tabindex="1" id="mo-highlighter-5" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #5" aria-label="Hervorhebungsfarbe #5" data-mohighlight="5" >
 
                     </button>
-                    <button tabindex="1" id="mo-highlighter-6" type="button" class="btn btn-mo-highlighter" title="{{strings.i18n_audio_highlight}}: #6" aria-label="{{strings.i18n_audio_highlight}}: #6" data-mohighlight="6" >
+                    <button tabindex="1" id="mo-highlighter-6" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #6" aria-label="Hervorhebungsfarbe #6" data-mohighlight="6" >
 
                     </button>
                 </div>
 
-                <button tabindex="1" id="btn-playback-scroll-enable" type="button" class="btn icon-playback-scroll-enable" title="{{strings.i18n_playback_scroll_enable}}" aria-label="{{strings.i18n_playback_scroll_enable}}" >
+                <button tabindex="1" id="btn-playback-scroll-enable" type="button" class="btn icon-playback-scroll-enable" title="" aria-label="" >
                     <span id="icon-playback-scroll-off" class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
                 </button>
 
-                <button tabindex="1" id="btn-playback-scroll-disable" type="button" class="btn icon-playback-scroll-disable" title="{{strings.i18n_playback_scroll_disable}}" aria-label="{{strings.i18n_playback_scroll_disable}}" >
+                <button tabindex="1" id="btn-playback-scroll-disable" type="button" class="btn icon-playback-scroll-disable" title="" aria-label="" >
                     <span id="icon-playback-scroll-on" class="glyphicon glyphicon-sort" aria-hidden="true"></span>
                 </button>
 
