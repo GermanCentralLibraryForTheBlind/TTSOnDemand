@@ -12,6 +12,7 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     moment = require('moment'),
     ip = require('ip'),
     sem = require('semaphore')(1),
+    p = require('ua-parser'),
     SiteFilter = require('./../client/site-filter');
 
 var cachingIntervall;
@@ -35,9 +36,20 @@ var router = function (app) {
         if (req.method === 'POST') {
 
             var userAgent = '';
-            try { userAgent = req.headers['user-agent']; } catch (err) {}
+            try {
+                var ua = req.headers['user-agent'];
+                userAgent = p.parseUA(ua).toString();
+                userAgent += ' -> ';
+                userAgent +=p.parseOS(ua).toString();
+                userAgent += ' -> ';
+                userAgent +=p.parseDevice(ua).toString();
+  
+            } catch (err) {}
 
-            console.info('[INFO] POST request  from  userAgent: ' + userAgent + ' url: ' + fullUrl(req));
+            var timeStamp= '';
+            try { timeStamp = req._startTime  } catch (err) {}
+
+            console.info('[INFO] POST ' + timeStamp  + ' ' +  userAgent + ' url: ' + fullUrl(req));
 
             req.setEncoding('utf8');
 
@@ -124,24 +136,25 @@ var router = function (app) {
         });
     });
 
-    app.get("/caching/on", function (req, res) {
+    // app.get("/caching/on", function (req, res) {
+    //
+    //     console.log('[INFO] caching on');
+    //     caching();
+    //     if (cachingIntervall === undefined)
+    //         cachingIntervall = setInterval(caching, 600000); // 10min
+    //
+    //     res.send('Caching is activated!');
+    // });
 
-        console.log('[INFO] caching on');
-        caching();
-        if (cachingIntervall === undefined)
-            cachingIntervall = setInterval(caching, 600000); // 10min
+    // app.get("/caching/of", function (req, res) {
+    //
+    //     clearInterval(cachingIntervall);
+    //
+    //     res.send('Caching is deactivated!');
+    // });
 
-        res.send('Caching is activated!');
-    });
-
-    app.get("/caching/of", function (req, res) {
-
-        clearInterval(cachingIntervall);
-
-        res.send('Caching is deactivated!');
-    });
-
-    function caching() {
+    // todo: move to own module 
+    app.caching = function() {
 
         const start = moment(new Date());
         
@@ -282,7 +295,7 @@ var router = function (app) {
 
 function debugPrint(msg) {
     if(process.env.MODE === 'DEBUG') {
-        debugPrint(msg);
+        console.log(msg);
     }
 }
 

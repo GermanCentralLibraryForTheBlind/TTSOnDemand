@@ -24,14 +24,20 @@ const accessLogStream = fs.createWriteStream(__dirname + '/../../logs/access.log
 app.use(morgan('combined', {stream: accessLogStream}));
 
 
-require("./routes.js")(app);
+const router = require("./routes.js")(app);
 
 console.log('[INFO] NODE_ENV: ' + process.env.NODE_ENV);
 console.log('[INFO] MODE: ' + process.env.MODE);
 
 const server = app.listen(process.env.PORT || 3000, function () {
     const host = server.address().address;
-    const  port = server.address().port;
+    const port = server.address().port;
     console.log('[INFO] Service is listening at http://%s:%s', host, port);
 });
 
+
+if (process.env.NODE_ENV === 'production') {
+    console.log('[INFO] Start caching.');
+    app.caching();
+    setInterval(app.caching, 600000); // 10min
+}
