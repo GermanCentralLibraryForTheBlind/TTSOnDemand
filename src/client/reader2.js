@@ -93,7 +93,7 @@ function onButtonReaderClick () {
 
 function showPlayerMenu() {
 
-    $('.mnuPlayer').show();
+    $('.mnu-player').css('display','inline');
     addListenerToPlayerMnu();
     require('./player-menu');
 }
