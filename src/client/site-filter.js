@@ -20,7 +20,11 @@ Filter.skip = function ($content) {
         if (containsTextNode($this)) {
             //console.log($this.prop("tagName") + ' : ' + $this.html());
             // todo: ignore if it invisible
-
+            
+            //************************** ignore reader view *********************************
+            if ($this.parents('#reader').length !== 0)
+                return;
+            //**************************************************************************
 
             //************************** user specific *********************************
             if (escape[0] === $this.prop("tagName").toLowerCase())

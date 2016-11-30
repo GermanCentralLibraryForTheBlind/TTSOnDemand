@@ -1,4 +1,4 @@
-const $reader = $('#readerCSS');
+const $reader = $('#reader');
 const $btnCollapseExpandPlayerMenu = $("#btnCollapseExpandPlayerMenu");
 
 

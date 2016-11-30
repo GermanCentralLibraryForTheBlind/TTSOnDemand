@@ -1,10 +1,10 @@
 /* Load CSS files from your node_modules folder */
 /*@import "../../../node_modules/spinkit/css/spinners/1-rotating-plane.css";*/
-#readerCSS {
+#reader {
 @import (less) url("./bootstrap-custom/css/bootstrap.css");
 }
 
-#readerCSS {
+#reader {
     float: right;
     padding-right: 5%;
     padding-top: 5%;
@@ -14,19 +14,23 @@
     /*float: right;*/
 }
 
-#readerCSS .mnu-player {
+.glyphicon-read-custom {
+    margin-right: 10px;
+}
+
+#reader .mnu-player {
     display: none;
 }
 
-#readerCSS * {
+#reader * {
     background: #2568b4;
     color: white;
 }
 
 .btn-group-custom {
     letter-spacing: 2px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+    /*-moz-border-radius: 5px;*/
+    /*-webkit-border-radius: 5px;*/
     /*border: 1px solid rgba(0, 0, 0, 0.3);*/
     /*border-bottom-width: 3px;*/
     /*text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);*/
@@ -84,6 +88,37 @@
     }
 }
 
+
+/**********************************************************
+* time range slider
+***********************************************************/
+
+#timeRangeSliderOutput {
+    /*width: 100px;*/
+}
+
+#timeRangeSlider {
+    width: 6em;
+    /*display: block;*/
+    /*width: 100%;*/
+
+    /*border-left: 10px solid #4d4d4d;*/
+    /*border-right: 10px solid #4d4d4d;*/
+}
+
+#timeRangeSlider::-moz-range-track {
+    border-left: 10px solid #4d4d4d;
+    border-right: 10px solid #4d4d4d;
+}
+
+#timeRangeSlider::-moz-range-thumb {
+    height: 8px;
+}
+
+#timeRangeSlider::-webkit-slider-thumb {
+    height: 8px;
+}
+
 /**********************************************************
 *
 * audio expand
@@ -94,11 +129,9 @@
     display: none;
 }
 
-#readerCSS.expanded-audio > #audioExpanded {
+#reader.expanded-audio > #audioExpanded {
     display: block;
     min-height: 36px;
-    margin-top: 20px;
-
 }
 
 #audioResponsive {
@@ -134,12 +167,9 @@
     top: 3px;
 }
 
-#app-navbar #time-range-slider {
-    box-shadow: none !important;
-}
 
 #volume-range-slider,
-#time-range-slider,
+#timeRangeSlider,
 #rate-range-slider
 {
     -webkit-appearance: slider-horizontal;
@@ -153,7 +183,7 @@
 }
 
 #volume-range-slider::-moz-range-track,
-#time-range-slider::-moz-range-track,
+#timeRangeSlider::-moz-range-track,
 #rate-range-slider::-moz-range-track
 {
     background-color: #484848;
@@ -162,7 +192,7 @@
 }
 
 #volume-range-slider:active,
-#time-range-slider:active,
+#timeRangeSlider:active,
 #rate-range-slider:active
 {
     -webkit-appearance: none;
@@ -170,7 +200,7 @@
 }
 
 #volume-range-slider::-webkit-slider-thumb,
-#time-range-slider::-webkit-slider-thumb,
+#timeRangeSlider::-webkit-slider-thumb,
 #rate-range-slider::-webkit-slider-thumb
 {
     -webkit-appearance: none;
@@ -184,7 +214,7 @@
 }
 
 #volume-range-slider::-moz-range-thumb,
-#time-range-slider::-moz-range-thumb,
+#timeRangeSlider::-moz-range-thumb,
 #rate-range-slider::-moz-range-thumb
 {
     background-color: #ddd;
@@ -215,57 +245,13 @@ input[type=range] {
     padding: 0;
 }
 
-#time-range-slider {
-    width: 6em;
-    /*display: block;*/
-    /*width: 100%;*/
-
-    /*border-left: 10px solid #4d4d4d;*/
-    /*border-right: 10px solid #4d4d4d;*/
-}
-
-#time-range-slider::-moz-range-track {
-    border-left: 10px solid #4d4d4d;
-    border-right: 10px solid #4d4d4d;
-}
-
-#time-range-slider::-moz-range-thumb {
-    height: 8px;
-}
-
-#time-range-slider::-webkit-slider-thumb {
-    height: 8px;
-}
-
-#time-range-slider::after {
-    position: absolute;
-
-    font-family: monospace;
-    font-size: 90%;
-    font-weight: bold;
-
-    padding: 0.4em;
-    padding-top: 0.01em;
-    padding-bottom: 0.01em;
-
-    margin: 0;
-
-    min-width: 3em;
-    margin-left: -3em;
-
-    text-align: left;
-
-    color: white;
-
-    content: attr(data-value) "%";
-}
 
 #audio-block {
     display: inline;
 }
 
 #mo-highlighters {
-    display: inline-block;
+    /*display: inline-block;*/
 
     margin: 0;
     margin-right: 0em;
