@@ -83,5 +83,8 @@ module.exports = {
     },
     isLoaded: function () {
         return this.is_loaded;
+    },
+    getTotalDuration: function () {
+        this.model.get("total_duration");
     }
 }

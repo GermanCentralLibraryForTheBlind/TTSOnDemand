@@ -19,7 +19,8 @@ var MediaOverlay = Backbone.Model.extend({
         should_highlight: true,
         current_text_document_url: null,
         current_text_element_id: null,
-        can_escape: false
+        can_escape: false,
+        total_duration: 0
     },
 
 
@@ -109,6 +110,7 @@ var MediaOverlay = Backbone.Model.extend({
         // start the playback tree at <body>
         var smiltree = $(xml).find("body")[0];
         this.smilModel.build(smiltree);
+        this.set({total_duration: this.smilModel.getTotalDuration()});
         this.set({is_ready: true});
     },
     // start playback

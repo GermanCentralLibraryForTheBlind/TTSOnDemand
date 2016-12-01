@@ -148,11 +148,14 @@ function readContent(jobID) {
                 $el.append(ttsCounterpart.contents());
             }
             else
-                console.log('Lost element ' + id + 'during tts process???');
+                console.log('Lost element ' + id + ' during tts process???');
 
         }).promise().done(function () {
 
             model.setSmilUrl(JOB_BASE_PATH + jobID + SMIL);
+            model.bind("change:is_ready", function () {
+                alert(model.get("total_duration"));
+            });
             player.playpause();
 
         });
