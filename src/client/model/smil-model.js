@@ -347,20 +347,25 @@ var SmilModel = function () {
 
 
     this.renderAt = function (percent) {
+
+        if(percent < 0 || percent > 100)
+            return;
+
         currentTime = 0;
         const startAt = totalDuration * (percent / 100);
         var currentTime = 0;
         const self = this;
+
         processTree(root, function (node) {
 
             if (node.tagName === "audio") {
                 const duration = parseFloat($(node).attr("clipEnd")) - parseFloat($(node).attr("clipBegin"));
                 currentTime += duration;
                 if (currentTime < startAt)
-                    self.render(node);
+                    self.render(node.parentNode);
             }
-        })
-    }
+        });
+    };
 };
 
 module.exports = SmilModel;
