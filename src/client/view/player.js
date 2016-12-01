@@ -87,4 +87,4 @@ module.exports = {
     getTotalDuration: function () {
         this.model.get("total_duration");
     }
-}
+};

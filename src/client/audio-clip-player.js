@@ -197,7 +197,6 @@ var AudioClipPlayer = function () {
             debugPrint("Setting currentTime from " + _audioElement.currentTime + " to clipBegin " + clipBegin);
 
         }
-
     }
 
     function seeked() {

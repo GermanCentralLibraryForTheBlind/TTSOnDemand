@@ -153,10 +153,13 @@ function readContent(jobID) {
         }).promise().done(function () {
 
             model.setSmilUrl(JOB_BASE_PATH + jobID + SMIL);
-            model.bind("change:is_ready", function () {
-                alert(model.get("total_duration"));
-            });
+            // model.bind("change:is_ready", function () {
+            //     alert(model.get("total_duration"));
+            // });
             player.playpause();
+            // setTimeout(function () {
+            // model.startPlaybackAt(45);
+            // }, 2000);
 
         });
     });

@@ -130,6 +130,13 @@ var MediaOverlay = Backbone.Model.extend({
         }
         this.smilModel.render(node);
     },
+    startPlaybackAt: function (percent) {
+        // this.set({is_document_done: false});
+        // if (this.get("is_ready") === false || this.smilModel === null) {
+        //     return;
+        // }
+        this.smilModel.renderAt(percent);
+    },
     pause: function () {
         if (this.get("is_ready") === false || this.smilModel === null) {
             return;

@@ -101,7 +101,7 @@ var SmilModel = function () {
 
     var mustSkipTypes = [];
     var mayEscapeTypes = [];
-    
+
     var totalDuration = 0;
 
     // call this first with the media node renderers to add them to the master list
@@ -128,7 +128,7 @@ var SmilModel = function () {
     // node is the root of the SMIL tree, for example the body node of the DOM
     this.build = function (node) {
         root = node;
-        processTree(node, 0);
+        processTree(node, processNode);
     };
 
     // prepare the tree to start rendering from a node
@@ -221,11 +221,11 @@ var SmilModel = function () {
     }
 
     // recursively process a SMIL XML DOM
-    function processTree(node) {
-        processNode(node);
+    function processTree(node, currentNode) {
+        currentNode(node);
         if (node.childNodes.length > 0) {
             $.each(node.childNodes, function (idx, val) {
-                processTree(val);
+                processTree(val, currentNode);
             });
         }
     }
@@ -277,7 +277,7 @@ var SmilModel = function () {
                 $(node).attr("clipEnd", 9999999);
         }
     }
-    
+
     function totalDurationSummery(node) {
 
         if (node.tagName === "audio") {
@@ -344,6 +344,23 @@ var SmilModel = function () {
     this.getTotalDuration = function () {
         return totalDuration;
     };
+
+
+    this.renderAt = function (percent) {
+        currentTime = 0;
+        const startAt = totalDuration * (percent / 100);
+        var currentTime = 0;
+        const self = this;
+        processTree(root, function (node) {
+
+            if (node.tagName === "audio") {
+                const duration = parseFloat($(node).attr("clipEnd")) - parseFloat($(node).attr("clipBegin"));
+                currentTime += duration;
+                if (currentTime < startAt)
+                    self.render(node);
+            }
+        })
+    }
 };
 
 module.exports = SmilModel;
