@@ -20,7 +20,6 @@ var MediaOverlay = Backbone.Model.extend({
         current_text_document_url: null,
         current_text_element_id: null,
         can_escape: false,
-        total_duration: 0
     },
 
 
@@ -110,9 +109,6 @@ var MediaOverlay = Backbone.Model.extend({
         // start the playback tree at <body>
         var smiltree = $(xml).find("body")[0];
         this.smilModel.build(smiltree);
-        this.bind("change:is_ready", function () {
-            this.set({total_duration: this.smilModel.getTotalDuration()});
-        });
         this.set({is_ready: true});
     },
     // start playback
@@ -199,7 +195,11 @@ var MediaOverlay = Backbone.Model.extend({
             return;
         }
         this.smilModel.removeEscapeType(name);
+    },
+    getTotalDuration: function () {
+        return this.smilModel.getTotalDuration();
     }
+
 
 });
 module.exports = MediaOverlay;

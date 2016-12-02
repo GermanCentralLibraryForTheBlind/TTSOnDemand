@@ -67,8 +67,7 @@ function onButtonReaderClick () {
         toogleProcessSpinner();
         return;
     }
-
-
+    
     const $content = $(config.content[0], config.content[1])
     const $normalizedContent = SiteFilter.skip($content);
 
@@ -114,6 +113,22 @@ function addListenerToPlayerMnu() {
 
     $('#timeRangeSlider').on('change', function() {
        player.playAt($(this).val());
+    });
+
+    $('#timeRangeSlider').on('input', function() {
+
+        var control = $(this),
+            controlMin = control.attr('min'),
+            controlMax = control.attr('max'),
+            controlVal = control.val(),
+            controlThumbWidth = control.data('thumbwidth');
+
+        var range = controlMax - controlMin;
+        var position = ((controlVal - controlMin) / range) * 100;
+        var positionOffset = Math.round(controlThumbWidth * position / 100) - (controlThumbWidth / 2);
+
+        $('#timeRangeSliderOutput').css('left', 'calc(' + position + '% - ' + positionOffset + 'px)').text(controlVal);
+
     });
 }
 

@@ -15,6 +15,14 @@ module.exports = {
         });
         this.model.bind('change:is_ready', function () {
             self.is_loaded = true;
+
+            $("#timeRangeSlider").removeAttr('disabled');
+            var totalDuration = self.model.getTotalDuration();
+            const min = Math.floor(totalDuration / 60);
+            const seconds = Math.floor(totalDuration % 60);
+            totalDuration =  min + ':' + seconds; // exchange to minutes
+            
+            $("#timeRangeSliderOutput").text(totalDuration);
         });
         this.model.bind('change:can_escape', function () {
             self.render();
@@ -44,11 +52,6 @@ module.exports = {
 
             function onready() {
                 self.model.unbind("change:is_ready", onready);
-
-                // maybe the slider setup can moved to render()
-                $("#timeRangeSlider").removeAttr('disabled');
-                $("#timeRangeSliderOutput").text(self.getTotalDuration());
-
                 self.model.startPlayback(null);
             }
 
@@ -88,8 +91,5 @@ module.exports = {
     },
     isLoaded: function () {
         return this.is_loaded;
-    },
-    getTotalDuration: function () {
-        this.model.get("total_duration");
     }
 };
