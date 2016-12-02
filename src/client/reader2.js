@@ -112,6 +112,9 @@ function addListenerToPlayerMnu() {
             player.stop();
     });
 
+    $('#timeRangeSlider').on('change', function() {
+       player.playAt($(this).val());
+    });
 }
 
 function toogleProcessSpinner() {
@@ -153,14 +156,8 @@ function readContent(jobID) {
         }).promise().done(function () {
 
             model.setSmilUrl(JOB_BASE_PATH + jobID + SMIL);
-            // model.bind("change:is_ready", function () {
-            //     alert(model.get("total_duration"));
-            // });
-            player.playpause();
-            // setTimeout(function () {
-            // model.startPlaybackAt(45);
-            // }, 2000);
 
+            player.playpause();
         });
     });
 }

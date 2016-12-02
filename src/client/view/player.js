@@ -23,20 +23,16 @@ module.exports = {
     },
 
     render: function () {
-        if (this.model.get("is_playing")) {
+
+        if (this.model.get("is_playing"))
             $("#play").attr("class", "glyphicon glyphicon-pause aligned");
-            $("#cb").attr('disabled', 'disabled');
-        }
-        else {
+        else
             $("#play").attr("class", "glyphicon glyphicon-play aligned");
-            $("#cb").removeAttr('disabled');
-        }
-        if (this.model.get("can_escape")) {
-            $("#escape").removeAttr('disabled');
-        }
-        else {
-            $("#escape").attr('disabled', 'disabled');
-        }
+
+        // if (this.model.get("can_escape"))
+        //     $("#escape").removeAttr('disabled');
+        // else
+        //     $("#escape").attr('disabled', 'disabled');
 
         return this;
     },
@@ -45,8 +41,14 @@ module.exports = {
         // load a file if we haven't already
         if (this.is_loaded === false) {
             this.model.bind("change:is_ready", onready);
+
             function onready() {
                 self.model.unbind("change:is_ready", onready);
+
+                // maybe the slider setup can moved to render()
+                $("#timeRangeSlider").removeAttr('disabled');
+                $("#timeRangeSliderOutput").text(self.getTotalDuration());
+
                 self.model.startPlayback(null);
             }
 
@@ -58,12 +60,15 @@ module.exports = {
             else
                 this.model.resume();
 
-            if(this.model.get("is_stop")) {
+            if (this.model.get("is_stop")) {
                 this.model.set("is_stop", false);
                 self.model.startPlayback(null);
             }
 
         }
+    },
+    playAt: function (percent) {
+        this.model.startPlaybackAt(percent);
     },
     stop: function () {
 

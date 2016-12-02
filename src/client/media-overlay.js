@@ -110,19 +110,14 @@ var MediaOverlay = Backbone.Model.extend({
         // start the playback tree at <body>
         var smiltree = $(xml).find("body")[0];
         this.smilModel.build(smiltree);
-        this.set({total_duration: this.smilModel.getTotalDuration()});
+        this.bind("change:is_ready", function () {
+            this.set({total_duration: this.smilModel.getTotalDuration()});
+        });
         this.set({is_ready: true});
     },
     // start playback
     // node is a SMIL node that indicates the starting point
     // if node is null, playback starts at the beginning
-    // TODO: handle what happens if the user directly navigates to a node that is supposed to be skipped
-    // DAISY guidelines say to allow this and to play the node; however, there are lots of implementation options:
-    // 1. The UA controls this and calls removeSkipType before starting MO playback
-    // 2. The SMIL tree exposes that node, and assumes the UA does the same for the text display.
-    // 3. The SMIL tree exposes that node and all those above it to give maxiumum context, and assumes the UA does the same
-    // to explain #3 further: imagine that the user navigates directly to an image description that is within a sidebar, and both are set up to be skipped. 
-    // you probably don't just want to enable the image description without enabling the sidebar too.
     startPlayback: function (node) {
         this.set({is_document_done: false});
         if (this.get("is_ready") === false || this.smilModel === null) {
@@ -131,10 +126,10 @@ var MediaOverlay = Backbone.Model.extend({
         this.smilModel.render(node);
     },
     startPlaybackAt: function (percent) {
-        // this.set({is_document_done: false});
-        // if (this.get("is_ready") === false || this.smilModel === null) {
-        //     return;
-        // }
+        this.set({is_document_done: false});
+        if (this.get("is_ready") === false || this.smilModel === null) {
+            return;
+        }
         this.smilModel.renderAt(percent);
     },
     pause: function () {
