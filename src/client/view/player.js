@@ -52,11 +52,6 @@ module.exports = {
 
             function onready() {
                 self.model.unbind("change:is_ready", onready);
-
-                // maybe the slider setup can moved to render()
-                $("#timeRangeSlider").removeAttr('disabled');
-                $("#timeRangeSliderOutput").text(self.getTotalDuration());
-
                 self.model.startPlayback(null);
             }
 
