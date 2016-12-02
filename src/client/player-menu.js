@@ -1,17 +1,17 @@
-const $player = $('#player');
+const $reader = $('#readerCSS');
 const $btnCollapseExpandPlayerMenu = $("#btnCollapseExpandPlayerMenu");
 
 
 function toggleAudioExpand(expand) {
     if (expand)
-        $player.addClass('expanded-audio');
+        $reader.addClass('expanded-audio');
     else
-        $player.removeClass('expanded-audio');
+        $reader.removeClass('expanded-audio');
 }
 
 // Keyboard.on(Keyboard.MediaOverlaysAdvancedPanelShowHide, 'reader', function(){
 //     var toFocus = undefined;
-//     if ($player.hasClass('expanded-audio'))
+//     if ($reader.hasClass('expanded-audio'))
 //     {
 //         toggleAudioExpand(false);
 //         toFocus = $expandAudioBtn[0];
@@ -28,7 +28,7 @@ function toggleAudioExpand(expand) {
 
 $btnCollapseExpandPlayerMenu.on("click", function () {
     // var wasFocused = document.activeElement === $expandAudioBtn[0];
-    if($player.hasClass('expanded-audio'))
+    if($reader.hasClass('expanded-audio'))
         toggleAudioExpand(false);
     else
         toggleAudioExpand(true);

@@ -1,98 +1,92 @@
 <div id="readerCSS">
-    <div id="player" class="btn-group btn-group-sm btn-group-custom" role="group">
-        <button id="btnRead" class="btn btn-custom" type="button" aria-label="Artikel vorlesen">
-            <span title="read" class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Vorlesen
+    <div id="player" class="btn-group-custom" role="group">
+        <button id="btnRead" class="btn" type="button" aria-label="Artikel vorlesen">
+            <span title="read" class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Artikel vorlesen
             <span class="glyphicon glyphicon-refresh glyphicon-spin glyphicon-spin-hide" aria-hidden="true"></span>
         </button>
-        <div class="btn-group btn-group-sm mnuPlayer">
-            <button id="btnPlay" class="btn btn-custom" aria-label="Wiedergabe Starten oder Pausieren">
+        <div class="mnu-player">
+            <button tabindex="1" id="btnPlay" class="btn btn-custom" aria-label="Wiedergabe Starten oder Pausieren">
                 <span title="Play" id="play" class="glyphicon glyphicon-play" aria-hidden="true"></span>
             </button>
-            <button id="btnStop" class="btn btn-custom" aria-label="Wiedergabe stoppen">
+            <button tabindex="2" id="btnStop" class="btn btn-custom" aria-label="Wiedergabe stoppen">
                 <span title="Stop" id="stop" class="glyphicon glyphicon-stop" aria-hidden="true"></span>
             </button>
-            <!--<button onclick="Restart('music.mp3','audio');" class="btn btn-custom">-->
-            <!--<span title="Restart" id="restart" class="glyphicon glyphicon-step-backward aligned"></span>-->
-            <!--</button>-->
-            <!--<button onclick="Backward5('music.mp3','audio');" class="btn btn-custom">-->
-            <!--<span title="-5 seconds" id="play" class="glyphicon glyphicon-fast-backward aligned"></span>-->
-            <!--</button>-->
-            <!--<button onclick="Forward5('music.mp3','audio');" class="btn btn-custom">-->
-            <!--<span title="+5 seconds" id="play" class="glyphicon glyphicon-fast-forward aligned"></span>-->
-            <!--</button>-->
-            <!--<button onclick="Backward1('music.mp3','audio');" class="btn btn-custom">-->
-            <!--<span title="-1 second" id="play" class="glyphicon glyphicon-chevron-left aligned"></span>-->
-            <!--</button>-->
-            <!--<button onclick="Forward1('music.mp3','audio');" class="btn btn-custom">-->
-            <!--<span title="+1 second" id="play" class="glyphicon glyphicon-chevron-right aligned"></span>-->
-            <!--</button>-->
-            <!--<button onclick="VolumeUp('music.mp3','audio');" class="btn btn-custom">-->
-            <!--<span title="Volume Up" id="volumeup" class="glyphicon glyphicon-plus aligned"></span>-->
-            <!--</button>-->
-            <button tabindex="1" id="btnCollapseExpandPlayerMenu" type="button" class="btn" title=" " aria-label=" ">
+            <input tabindex="3" id="time-range-slider" type="range" role="slider" min="0" aria-value-min="0"
+                   aria-valuemin="0" max="100" aria-value-max="100" aria-valuemax="100" value="0" aria-valuenow="0"
+                   aria-value-now="0" aria-valuetext="0%" aria-value-text="0%" data-value="0" title="Navigationsleiste"
+                   aria-label="Navigationsleiste zur Navigation innerhalb des Textes">
+            </input>
+            <button tabindex="4" id="btnCollapseExpandPlayerMenu" type="button" class="btn" title=" " aria-label="">
                 <span class="glyphicon glyphicon-save" aria-hidden="true"></span>
             </button>
         </div>
+    </div>
+    <div id="audioExpanded" class="playScroll" role="alert">
+        <button tabindex="1" id="btn-audio-rate" type="button" class="btn icon-rate-audio" title=" " aria-label=" "
+                accesskey="">
+            <span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>
+        </button>
 
-        <div id="audioExpanded" class="playScroll" role="alert">
+        <input tabindex="1" id="rate-range-slider" type="range" role="slider" min="0" aria-value-min="0"
+               aria-valuemin="0" max="4" aria-value-max="4" aria-valuemax="4" value="1" aria-valuenow="1"
+               aria-value-now="1" aria-valuetext="1x" aria-value-text="1x" step="0.1" title="  / " aria-label="  / "/>
 
-            <input tabindex="1" id="time-range-slider" type="range" role="slider" min="0" aria-value-min="0" aria-valuemin="0" max="100" aria-value-max="100" aria-valuemax="100" value="0" aria-valuenow="0" aria-value-now="0" aria-valuetext="0%" aria-value-text="0%" data-value="0" title="" aria-label=""  />
+        <span aria-hidden="true" tabindex="-1" id="rate-range-slider-label">1x</span>
 
+        <!--<form action="" id="mo-sync-form">-->
+        <!--<input tabindex="1" type="radio" name="mo-sync" value="default" id="mo-sync-default" class="mo-sync" checked="checked"  title=" " aria-label=" "> </input>-->
+        <!--<label tabindex="1" for="mo-sync-default" title=" "><span aria-hidden="true">&#8855;</span></label>-->
 
-            <button tabindex="1" id="btn-audio-rate" type="button" class="btn icon-rate-audio" title=" " aria-label=" " accesskey="">
-                <span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>
+        <!--<input tabindex="1" type="radio" name="mo-sync" value="word" id="mo-sync-word" class="mo-sync" title=" " aria-label=" "> </input>-->
+        <!--<label tabindex="1" for="mo-sync-word" title=" "><span aria-hidden="true"></span></label>-->
+
+        <!--<input tabindex="1" type="radio" name="mo-sync" value="sentence" id="mo-sync-sentence" class="mo-sync" title=" " aria-label=" "> </input>-->
+        <!--<label tabindex="1" for="mo-sync-sentence" title=" "><span aria-hidden="true"></span></label>-->
+
+        <!--<input tabindex="1" type="radio" name="mo-sync" value="paragraph" id="mo-sync-paragraph" class="mo-sync" title=" " aria-label=" "> </input>-->
+        <!--<label tabindex="1" for="mo-sync-paragraph" title=" "><span aria-hidden="true"></span></label>-->
+        <!--</form>-->
+
+        <div id="audio-block">
+
+            <div id="mo-highlighters">
+                <button tabindex="1" id="mo-highlighter-1" type="button" class="btn btn-mo-highlighter"
+                        title="Hervorhebungsfarbe #1" aria-label="Hervorhebungsfarbe #1" data-mohighlight="1">
+
+                </button>
+                <button tabindex="1" id="mo-highlighter-2" type="button" class="btn btn-mo-highlighter"
+                        title="Hervorhebungsfarbe #2" aria-label="Hervorhebungsfarbe #2" data-mohighlight="2">
+
+                </button>
+                <button tabindex="1" id="mo-highlighter-3" type="button" class="btn btn-mo-highlighter"
+                        title="Hervorhebungsfarbe #3" aria-label="Hervorhebungsfarbe #3" data-mohighlight="3">
+
+                </button>
+                <button tabindex="1" id="mo-highlighter-4" type="button" class="btn btn-mo-highlighter"
+                        title="Hervorhebungsfarbe #4" aria-label="Hervorhebungsfarbe #4" data-mohighlight="4">
+
+                </button>
+                <button tabindex="1" id="mo-highlighter-5" type="button" class="btn btn-mo-highlighter"
+                        title="Hervorhebungsfarbe #5" aria-label="Hervorhebungsfarbe #5" data-mohighlight="5">
+
+                </button>
+                <button tabindex="1" id="mo-highlighter-6" type="button" class="btn btn-mo-highlighter"
+                        title="Hervorhebungsfarbe #6" aria-label="Hervorhebungsfarbe #6" data-mohighlight="6">
+
+                </button>
+            </div>
+
+            <button tabindex="1" id="btn-playback-scroll-enable" type="button" class="btn icon-playback-scroll-enable"
+                    title="" aria-label="">
+                <span id="icon-playback-scroll-off" class="glyphicon glyphicon-sort-by-attributes"
+                      aria-hidden="true"></span>
             </button>
 
-            <input tabindex="1" id="rate-range-slider" type="range" role="slider" min="0" aria-value-min="0" aria-valuemin="0" max="4" aria-value-max="4" aria-valuemax="4" value="1" aria-valuenow="1" aria-value-now="1" aria-valuetext="1x" aria-value-text="1x" step="0.1" title="  / " aria-label="  / " />
+            <button tabindex="1" id="btn-playback-scroll-disable" type="button" class="btn icon-playback-scroll-disable"
+                    title="" aria-label="">
+                <span id="icon-playback-scroll-on" class="glyphicon glyphicon-sort" aria-hidden="true"></span>
+            </button>
 
-            <span aria-hidden="true" tabindex="-1" id="rate-range-slider-label">1x</span>
-
-            <!--<form action="" id="mo-sync-form">-->
-                <!--<input tabindex="1" type="radio" name="mo-sync" value="default" id="mo-sync-default" class="mo-sync" checked="checked"  title=" " aria-label=" "> </input>-->
-                <!--<label tabindex="1" for="mo-sync-default" title=" "><span aria-hidden="true">&#8855;</span></label>-->
-
-                <!--<input tabindex="1" type="radio" name="mo-sync" value="word" id="mo-sync-word" class="mo-sync" title=" " aria-label=" "> </input>-->
-                <!--<label tabindex="1" for="mo-sync-word" title=" "><span aria-hidden="true"></span></label>-->
-
-                <!--<input tabindex="1" type="radio" name="mo-sync" value="sentence" id="mo-sync-sentence" class="mo-sync" title=" " aria-label=" "> </input>-->
-                <!--<label tabindex="1" for="mo-sync-sentence" title=" "><span aria-hidden="true"></span></label>-->
-
-                <!--<input tabindex="1" type="radio" name="mo-sync" value="paragraph" id="mo-sync-paragraph" class="mo-sync" title=" " aria-label=" "> </input>-->
-                <!--<label tabindex="1" for="mo-sync-paragraph" title=" "><span aria-hidden="true"></span></label>-->
-            <!--</form>-->
-
-            <div id="audio-block">
-
-                <div id="mo-highlighters">
-                    <button tabindex="1" id="mo-highlighter-1" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #1" aria-label="Hervorhebungsfarbe #1" data-mohighlight="1" >
-
-                    </button>
-                    <button tabindex="1" id="mo-highlighter-2" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #2" aria-label="Hervorhebungsfarbe #2" data-mohighlight="2" >
-
-                    </button>
-                    <button tabindex="1" id="mo-highlighter-3" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #3" aria-label="Hervorhebungsfarbe #3" data-mohighlight="3" >
-
-                    </button>
-                    <button tabindex="1" id="mo-highlighter-4" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #4" aria-label="Hervorhebungsfarbe #4" data-mohighlight="4" >
-
-                    </button>
-                    <button tabindex="1" id="mo-highlighter-5" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #5" aria-label="Hervorhebungsfarbe #5" data-mohighlight="5" >
-
-                    </button>
-                    <button tabindex="1" id="mo-highlighter-6" type="button" class="btn btn-mo-highlighter" title="Hervorhebungsfarbe #6" aria-label="Hervorhebungsfarbe #6" data-mohighlight="6" >
-
-                    </button>
-                </div>
-
-                <button tabindex="1" id="btn-playback-scroll-enable" type="button" class="btn icon-playback-scroll-enable" title="" aria-label="" >
-                    <span id="icon-playback-scroll-off" class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>
-                </button>
-
-                <button tabindex="1" id="btn-playback-scroll-disable" type="button" class="btn icon-playback-scroll-disable" title="" aria-label="" >
-                    <span id="icon-playback-scroll-on" class="glyphicon glyphicon-sort" aria-hidden="true"></span>
-                </button>
-
-            </div>
         </div>
     </div>
 </div>
