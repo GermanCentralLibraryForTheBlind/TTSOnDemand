@@ -17,12 +17,6 @@ module.exports = {
             self.is_loaded = true;
 
             $("#timeRangeSlider").removeAttr('disabled');
-            var totalDuration = self.model.getTotalDuration();
-            const min = Math.floor(totalDuration / 60);
-            const seconds = Math.floor(totalDuration % 60);
-            totalDuration =  min + ':' + seconds; // exchange to minutes
-            
-            $("#timeRangeSliderOutput").text(totalDuration);
         });
         this.model.bind('change:can_escape', function () {
             self.render();

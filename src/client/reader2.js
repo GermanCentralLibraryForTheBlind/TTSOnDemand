@@ -55,7 +55,7 @@ $(document).ready(function () {
 });
 
 
-function onButtonReaderClick () {
+function onButtonReaderClick() {
 
     toogleProcessSpinner();
 
@@ -67,7 +67,7 @@ function onButtonReaderClick () {
         toogleProcessSpinner();
         return;
     }
-    
+
     const $content = $(config.content[0], config.content[1])
     const $normalizedContent = SiteFilter.skip($content);
 
@@ -92,7 +92,7 @@ function onButtonReaderClick () {
 
 function showPlayerMenu() {
 
-    $('.mnu-player').css('display','inline');
+    $('.mnu-player').css('display', 'inline');
     addListenerToPlayerMnu();
     require('./player-menu');
 }
@@ -111,25 +111,35 @@ function addListenerToPlayerMnu() {
             player.stop();
     });
 
-    $('#timeRangeSlider').on('change', function() {
-       player.playAt($(this).val());
+    $('#timeRangeSlider').on('change', function () {
+        player.playAt($(this).val());
     });
 
-    $('#timeRangeSlider').on('input', function() {
+    $('#timeRangeSlider').on('input', function () {
 
-        var control = $(this),
-            controlMin = control.attr('min'),
-            controlMax = control.attr('max'),
-            controlVal = control.val(),
-            controlThumbWidth = control.data('thumbwidth');
+        const control = $(this),
+            pos = control.position(),
+            min = control.attr('min'),
+            max = control.attr('max'),
+            val = control.val(),
+            range = max - min,
+            position = ((val - min) / range) * 100,
+            left = pos.left + position,
+            top = pos.top - 32;
 
-        var range = controlMax - controlMin;
-        var position = ((controlVal - controlMin) / range) * 100;
-        var positionOffset = Math.round(controlThumbWidth * position / 100) - (controlThumbWidth / 2);
+        var totalDuration = model.getTotalDuration();
+        totalDuration *= (val / 100);
+        const minute = zeroPad(Math.floor(totalDuration / 60), 2);
+        const seconds = zeroPad(Math.floor(totalDuration % 60), 2);
+        totalDuration = minute + ':' + seconds; // exchange to minutes
 
-        $('#timeRangeSliderOutput').css('left', 'calc(' + position + '% - ' + positionOffset + 'px)').text(controlVal);
-
+        $('#timeRangeSliderOutput').css({'left': left, 'top': top}).text(totalDuration);
     });
+}
+function zeroPad(n, length) {
+    var s = n + '', needed = length - s.length;
+    if (needed > 0) s = (Math.pow(10, needed) + "").slice(1) + s;
+    return s;
 }
 
 function toogleProcessSpinner() {
