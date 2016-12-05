@@ -13,6 +13,7 @@ const generator = require('./../tts/dzb-tts-on-demand.js'),
     ip = require('ip'),
     sem = require('semaphore')(1),
     p = require('ua-parser'),
+    exec = require('child_process').exec,
     SiteFilter = require('./../client/site-filter');
 
 var cachingIntervall;
@@ -35,21 +36,30 @@ var router = function (app) {
 
         if (req.method === 'POST') {
 
-            var userAgent = '';
+
             try {
+                var userAgent = '';
                 var ua = req.headers['user-agent'];
                 userAgent = p.parseUA(ua).toString();
                 userAgent += ' -> ';
-                userAgent +=p.parseOS(ua).toString();
+                userAgent += p.parseOS(ua).toString();
                 userAgent += ' -> ';
-                userAgent +=p.parseDevice(ua).toString();
-  
-            } catch (err) {}
+                userAgent += p.parseDevice(ua).toString();
 
-            var timeStamp= '';
-            try { timeStamp = req._startTime  } catch (err) {}
+                // TODO get time from google only for test environment  
+                const cmd = 'curl -s --head http://google.de | grep ^Date: ';
+                exec(cmd, function (error, stdout, stderr) {
+                    if (error)
+                        console.error(error);
 
-            console.info('[INFO] POST ' + timeStamp  + ' ' +  userAgent);// todo: real request ip  + ' url: ' + fullUrl(req));
+                    var msg = '[INFO] POST ' + stdout + ' ' + userAgent;
+                    msg = msg.replace(/\n|\r/g, "");
+                    msg = msg.replace('Date: ', "");
+                    console.info(msg);// todo: real request ip  + ' url: ' + fullUrl(req));
+                });
+
+            } catch (err) {
+            }
 
             req.setEncoding('utf8');
 
@@ -154,14 +164,14 @@ var router = function (app) {
     // });
 
     // todo: move to own module 
-    app.caching = function() {
+    app.caching = function () {
 
         const start = moment(new Date());
-        
-            debugPrint('\n\n[INFO] ********************************************');
-            debugPrint('[INFO] Start caching at: ' + start.format());
-            debugPrint('[INFO] ********************************************\n\n');
-        
+
+        debugPrint('\n\n[INFO] ********************************************');
+        debugPrint('[INFO] Start caching at: ' + start.format());
+        debugPrint('[INFO] ********************************************\n\n');
+
         const config = {content: ['.sectionWrapperMain', '#content']};
 
         getArticleRefs("http://www.mdr.de/sachsen/index.html", function (refsToArticles) {
@@ -294,7 +304,7 @@ var router = function (app) {
 };
 
 function debugPrint(msg) {
-    if(process.env.MODE === 'DEBUG') {
+    if (process.env.MODE === 'DEBUG') {
         console.log(msg);
     }
 }
