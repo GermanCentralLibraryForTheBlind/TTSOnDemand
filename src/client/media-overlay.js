@@ -5,6 +5,9 @@ const
     SmilModel = require('./model/smil-model.js');
 
 Backbone.$ = $;
+
+// TODO: event get current playing progress timer maybe raise event every second  
+
 // loads and plays a single SMIL document
 var MediaOverlay = Backbone.Model.extend({
     audioplayer: null,
@@ -197,9 +200,12 @@ var MediaOverlay = Backbone.Model.extend({
         this.smilModel.removeEscapeType(name);
     },
     getTotalDuration: function () {
+
+        if (this.get("is_ready") === false || this.smilModel === null) {
+            return '';
+        }
         return this.smilModel.getTotalDuration();
     }
-
-
 });
+
 module.exports = MediaOverlay;

@@ -15,7 +15,9 @@ const
     MediaOverlay = require('./media-overlay.js'),
     PlayerView = require('./view/player'),
     TextAreaView = require('./view/text-area'),
-    fs = require('fs');
+    fs = require('fs'),
+    Slider = require("bootstrap-slider");
+
 
 Backbone.$ = $;
 SiteFilter.$ = $;
@@ -33,6 +35,7 @@ const playerTemplate = fs.readFileSync(__dirname + '/templates/player-view.html'
 
 var player;
 var model;
+var slider;
 
 const config = {
     btnRead: 'btnRead',
@@ -111,31 +114,36 @@ function addListenerToPlayerMnu() {
             player.stop();
     });
 
-    $('#timeRangeSlider').on('change', function () {
-        player.playAt($(this).val());
+    // https://github.com/seiyria/bootstrap-slider/
+    slider = new Slider('#timeRangeSlider', {
+
+        model: model,
+        formatter: function (value) {
+
+            var totalDuration = model.getTotalDuration();
+            totalDuration *= (value / 100);
+            const minute = zeroPad(Math.floor(totalDuration / 60), 2);
+            const seconds = zeroPad(Math.floor(totalDuration % 60), 2);
+            totalDuration = minute + ':' + seconds; // exchange to minutes
+
+            return totalDuration;
+        }
     });
 
-    $('#timeRangeSlider').on('input', function () {
+    slider.disable();
 
-        const control = $(this),
-            pos = control.position(),
-            min = control.attr('min'),
-            max = control.attr('max'),
-            val = control.val(),
-            range = max - min,
-            position = ((val - min) / range) * 100,
-            left = pos.left + position,
-            top = pos.top - 32;
+    model.bind("change:is_ready", enableSlider);
 
-        var totalDuration = model.getTotalDuration();
-        totalDuration *= (val / 100);
-        const minute = zeroPad(Math.floor(totalDuration / 60), 2);
-        const seconds = zeroPad(Math.floor(totalDuration % 60), 2);
-        totalDuration = minute + ':' + seconds; // exchange to minutes
-
-        $('#timeRangeSliderOutput').css({'left': left, 'top': top}).text(totalDuration);
+    slider.on("slideStop", function (slideEvt) {
+        player.playAt(slideEvt);
     });
 }
+
+function enableSlider() {
+    model.unbind("change:is_ready", enableSlider);
+    slider.enable();
+}
+
 function zeroPad(n, length) {
     var s = n + '', needed = length - s.length;
     if (needed > 0) s = (Math.pow(10, needed) + "").slice(1) + s;

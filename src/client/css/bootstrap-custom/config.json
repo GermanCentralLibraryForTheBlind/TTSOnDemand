@@ -384,8 +384,9 @@
   "css": [
     "buttons.less",
     "glyphicons.less",
-    "button-groups.less"
+    "button-groups.less",
+    "tooltip.less"
   ],
   "js": [],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=e3713007886a68c4ee232c8ca626c733"
+  "customizerUrl": "http://getbootstrap.com/customize/?id=edca536f4e36fbdc0690c1c6d533634d"
 }

@@ -1,7 +1,10 @@
 /* Load CSS files from your node_modules folder */
 /*@import "../../../node_modules/spinkit/css/spinners/1-rotating-plane.css";*/
 #reader {
+
 @import (less) url("./bootstrap-custom/css/bootstrap.css");
+@import (less) url("./node_modules/bootstrap-slider/dist/css/bootstrap-slider.min.css");
+
 }
 
 #reader {
@@ -87,53 +90,24 @@
 /**********************************************************
 * time range slider
 ***********************************************************/
+#reader .slider-handle {
+    background: #cbcbcb;
+}
 
-#timeRangeSliderOutput {
-    /*width: 100px;*/
-    font-size: smaller;
+#reader .tooltip {
+    background: transparent;
+}
+
+#reader .slider-selection {
+    background: #BABABA;
 }
 
 #timeRangeSlider {
-    width: 6em;
-    /*display: block;*/
-    /*width: 100%;*/
-
-    /*border-left: 10px solid #4d4d4d;*/
-    /*border-right: 10px solid #4d4d4d;*/
+    width: 4em;
+    margin-right: 10%;
+    margin-left: 10%;
 }
 
-#timeRangeSlider::-moz-range-track {
-    border-left: 10px solid #4d4d4d;
-    border-right: 10px solid #4d4d4d;
-}
-
-#timeRangeSlider::-moz-range-thumb {
-    height: 8px;
-}
-
-#timeRangeSlider::-webkit-slider-thumb {
-    height: 8px;
-}
-
-#timeRangeSliderOutput  {
-    position: absolute;
-    top: 20px;
-    display: none;
-    width: 50px;
-    height: 24px;
-    border: 1px solid #e2e2e2;
-    background-color: #fff;
-    border-radius: 3px;
-    color: #777;
-    font-size: .8em;
-    line-height: 24px;
-    text-align: center;
-}
-
-#timeRangeSlider:active + output {
-    display: block;
-    transform: translateX(-50%);
-}
 
 /**********************************************************
 *
@@ -184,7 +158,6 @@
 }
 
 #volume-range-slider,
-#timeRangeSlider,
 #rate-range-slider {
     -webkit-appearance: slider-horizontal;
     -webkit-appearance: none;
@@ -197,7 +170,6 @@
 }
 
 #volume-range-slider::-moz-range-track,
-#timeRangeSlider::-moz-range-track,
 #rate-range-slider::-moz-range-track {
     background-color: #484848;
     border-radius: 8px;
@@ -205,14 +177,12 @@
 }
 
 #volume-range-slider:active,
-#timeRangeSlider:active,
 #rate-range-slider:active {
     -webkit-appearance: none;
     box-shadow: 0 0 0 3px #6fb5f1;
 }
 
 #volume-range-slider::-webkit-slider-thumb,
-#timeRangeSlider::-webkit-slider-thumb,
 #rate-range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
 
@@ -225,7 +195,6 @@
 }
 
 #volume-range-slider::-moz-range-thumb,
-#timeRangeSlider::-moz-range-thumb,
 #rate-range-slider::-moz-range-thumb {
     background-color: #ddd;
 
@@ -250,10 +219,10 @@
     margin-left: 0.2em;
 }
 
-input[type=range] {
-    display: inline-block;
-    padding: 0;
-}
+/*input[type=range] {*/
+/*display: inline-block;*/
+/*padding: 0;*/
+/*}*/
 
 #audio-block {
     display: inline;
