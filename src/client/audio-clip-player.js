@@ -134,20 +134,47 @@ var AudioClipPlayer = function () {
     this.getCurrentSrc = function () {
         return src;
     };
-    // volume ranges from 0 to 1.0
-    this.setVolume = function (value) {
-        if (value < 0) {
-            _audioElement.volume = 0;
-        }
-        else if (value > 1) {
-            _audioElement.volume = 1;
-        }
-        else {
-            _audioElement.volume = value;
-        }
+    
+    var self = this;
+
+    var _rate = 1.0;
+    this.setRate = function(rate)
+    {
+        _rate = rate;
+        if (_rate < 0.5)
+            _rate = 0.5;
+
+        if (_rate > 3.0)
+            _rate = 3.0;
+
+        _audioElement.playbackRate = _rate;
     };
+    // self.setRate(_rate);
+    
+    // this.getRate = function()
+    // {
+    //     return _rate;
+    // }
+    //
 
-
+    var _volume = 1.0;
+    // volume ranges from 0 to 1.0
+    this.setVolume = function(volume)
+    {
+        _volume = volume;
+        if (_volume < 0.0)
+        {
+            _volume = 0.0;
+        }
+        if (_volume > 1.0)
+        {
+            _volume = 1.0;
+        }
+        _audioElement.volume = _volume;
+    };
+    
+    self.setVolume(_volume);
+    
     function loadData() {
 
         debugPrint('load new audio file');
@@ -187,7 +214,7 @@ var AudioClipPlayer = function () {
 
             startClipTimer();
             _audioElement.play();
-
+            self.setRate(_rate);
             debugPrint('Current time is within the clip.');
 
         } else {
@@ -207,6 +234,7 @@ var AudioClipPlayer = function () {
         setTimeout(function () {
             startClipTimer();
             _audioElement.play();
+            self.setRate(_rate);
         }, isAndroid ? 1000 : 500);
     }
 

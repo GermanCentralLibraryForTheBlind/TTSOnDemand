@@ -15,8 +15,6 @@ module.exports = {
         });
         this.model.bind('change:is_ready', function () {
             self.is_loaded = true;
-
-            $("#timeRangeSlider").removeAttr('disabled');
         });
         this.model.bind('change:can_escape', function () {
             self.render();
@@ -80,8 +78,8 @@ module.exports = {
     setvolume: function () {
         this.model.setVolume($("#volume")[0].value / 100);
     },
-    escape: function () {
-        this.model.escape();
+    setRate: function (rate) {
+        this.model.setRate(rate);
     },
     isLoaded: function () {
         return this.is_loaded;

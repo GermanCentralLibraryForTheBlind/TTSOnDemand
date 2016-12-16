@@ -99,12 +99,10 @@ var MediaOverlay = Backbone.Model.extend({
                 }
 
                 function stripFragment(url) {
-                    if (url.indexOf("#") === -1) {
+                    if (url.indexOf("#") === -1)
                         return url;
-                    }
-                    else {
+                    else
                         return url.substr(0, url.indexOf("#"));
-                    }
                 }
             }
         });
@@ -119,36 +117,33 @@ var MediaOverlay = Backbone.Model.extend({
     // if node is null, playback starts at the beginning
     startPlayback: function (node) {
         this.set({is_document_done: false});
-        if (this.get("is_ready") === false || this.smilModel === null) {
+        //TODO: proper function for this model state validation 
+        if (this.get("is_ready") === false || this.smilModel === null)
             return;
-        }
         this.smilModel.render(node);
     },
     startPlaybackAt: function (percent) {
         this.set({is_document_done: false});
-        if (this.get("is_ready") === false || this.smilModel === null) {
+        if (this.get("is_ready") === false || this.smilModel === null)
             return;
-        }
         this.smilModel.renderAt(percent);
     },
     pause: function () {
-        if (this.get("is_ready") === false || this.smilModel === null) {
+        if (this.get("is_ready") === false || this.smilModel === null)
             return;
-        }
         this.audioplayer.pause();
     },
     resume: function () {
-        if (this.get("is_ready") === false || this.smilModel === null) {
+        if (this.get("is_ready") === false || this.smilModel === null)
             return;
-        }
         this.audioplayer.resume();
     },
-    escape: function () {
-        if (this.get("is_ready") === false || this.smilModel === null) {
-            return;
-        }
-        this.smilModel.escape();
-    },
+    // escape: function () {
+    //     if (this.get("is_ready") === false || this.smilModel === null) {
+    //         return;
+    //     }
+    //     this.smilModel.escape();
+    // },
     findNodeByTextSrc: function (src) {
         if (this.get("is_ready") === false || this.smilModel === null) {
             return null;
@@ -160,50 +155,51 @@ var MediaOverlay = Backbone.Model.extend({
         return elm;
     },
     findNodeById: function (id) {
-        if (this.get("is_ready") === false || this.smilModel === null) {
+        if (this.get("is_ready") === false || this.smilModel === null)
             return null;
-        }
         var elm = this.smilModel.findNode("", "id", id);
         return elm;
     },
     // volume is a floating-point number between 0 and 1
     setVolume: function (volume) {
+        if (this.get("is_ready") === false || this.smilModel === null)
+            return;
         this.audioplayer.setVolume(volume);
     },
-    // add an epub:type value to the list of things that playback must skip
-    addSkipType: function (name) {
-        if (this.get("is_ready") === false || this.smilModel === null) {
+    setRate: function (rate) {
+        if (this.get("is_ready") === false || this.smilModel === null)
             return;
-        }
+        this.audioplayer.setRate(rate);
+    },
+    // // add an epub:type value to the list of things that playback must skip
+    addSkipType: function (name) {
+        if (this.get("is_ready") === false || this.smilModel === null)
+            return;
         this.smilModel.addSkipType(name);
     },
-    // remove an epub:type value from the list of things that playback must skip
-    removeSkipType: function (name) {
-        if (this.get("is_ready") === false || this.smilModel === null) {
-            return;
-        }
-        this.smilModel.removeSkipType(name);
-    },
-
-    // add an epub:type value to the list of things that users may escape
+    // // remove an epub:type value from the list of things that playback must skip
+    // removeSkipType: function (name) {
+    //     if (this.get("is_ready") === false || this.smilModel === null)
+    //         return;
+    //     this.smilModel.removeSkipType(name);
+    // },
+    //
+    // // add an epub:type value to the list of things that users may escape
     addEscapeType: function (name) {
-        if (this.get("is_ready") === false || this.smilModel === null) {
+        if (this.get("is_ready") === false || this.smilModel === null)
             return;
-        }
         this.smilModel.addEscapeType(name);
     },
-    // remove an epub:type value from the list of things that users may escape
-    removeEscapeType: function (name) {
-        if (this.get("is_ready") === false || this.smilModel === null) {
-            return;
-        }
-        this.smilModel.removeEscapeType(name);
-    },
+    // // remove an epub:type value from the list of things that users may escape
+    // removeEscapeType: function (name) {
+    //     if (this.get("is_ready") === false || this.smilModel === null)
+    //         return;
+    //     this.smilModel.removeEscapeType(name);
+    // },
     getTotalDuration: function () {
 
-        if (this.get("is_ready") === false || this.smilModel === null) {
+        if (this.get("is_ready") === false || this.smilModel === null)
             return '';
-        }
         return this.smilModel.getTotalDuration();
     }
 });

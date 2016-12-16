@@ -137,6 +137,11 @@ function addListenerToPlayerMnu() {
     slider.on("slideStop", function (slideEvt) {
         player.playAt(slideEvt);
     });
+    
+    $("#rate-range-slider").change(function(){
+        const rate = $(this).val();
+        player.setRate(rate);
+    });
 }
 
 function enableSlider() {
