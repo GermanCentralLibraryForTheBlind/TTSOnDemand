@@ -31,15 +31,15 @@
 }
 
 .btn-group-custom {
-    letter-spacing: 2px;
+    /*letter-spacing: 2px;*/
 }
 
 .btn-custom {
-    border-radius: 0px !important;
-    transition-property: background, opacity;
-    transition-duration: 0.5s;
-    margin-left: -6px !important;
-    margin-right: -6px !important;
+    padding-left: 0;
+}
+
+#btnPlay {
+    padding-left: 10px;
 }
 
 .btn-custom:hover, .btn-custom:active, .btn-custom:focus {
@@ -99,14 +99,21 @@
 }
 
 #reader .slider-selection {
-    background: #BABABA;
+    background: #f10902;
 }
+
+#reader .slider-horizontal{
+    margin: 0 10px;
+    width: 150px;
+}
+
 
 #timeRangeSlider {
     width: 4em;
     margin-right: 10%;
     margin-left: 10%;
 }
+
 
 
 /**********************************************************
@@ -207,15 +214,6 @@
 #rate-range-slider-label {
     font-family: monospace;
     font-size: 90%;
-    font-weight: bold;
-
-    padding: 0;
-    margin: 0;
-
-    color: white;
-
-    position: absolute;
-    margin-top: 0.6em;
     margin-left: 0.2em;
 }
 
@@ -229,7 +227,7 @@
 }
 
 #mo-highlighters {
-    /*display: inline-block;*/
+    display: inline;
 
     margin: 0;
     margin-right: 0em;

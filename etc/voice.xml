@@ -1,5 +1,8 @@
 <config xmlns="http://example">
   <property key="log" value="true"/>
+  <!--<property key="threads.speaking.number" value="30"/>-->
+  <!--<property key="threads.encoding.number" value="30"/>-->
+  <!--<property key="threads.speaking.number" value="30"/>-->
   <voice engine="osx-speech" name="Anna" gender="female-adult" priority="100" lang="de"/>
   <voice engine="acapela" name="Julia" gender="female-adult" priority="100" lang="de"/>
   <!--<voice engine="acapela" name="Klaus" gender="male-adult" priority="100" lang="de"/>
