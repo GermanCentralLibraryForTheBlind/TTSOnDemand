@@ -30,12 +30,15 @@ const TAGGED_CONTENT = '/epub/EPUB/daisy3-2.xhtml';
 const SMIL = '/epub/EPUB/mo/daisy3-2.smil';
 const BACKEND = HOST_TTS_SERVICE + '/tts';
 
+const DEFAULT_HIGHLIGHTING_BACK_COLOR = '#ffcb59';
+const DEFAULT_HIGHLIGHTING_FORE_COLOR = '#000000';
+
 fixBootstrapFontPath();
 const playerTemplate = fs.readFileSync(__dirname + '/templates/player-view.html', 'utf8');
 
 var player;
 var model;
-var slider;
+var timeRangeSlider;
 
 const config = {
     btnRead: 'btnRead',
@@ -46,6 +49,8 @@ const config = {
 
 $(document).ready(function () {
 
+    setHighlightingColor(DEFAULT_HIGHLIGHTING_FORE_COLOR, DEFAULT_HIGHLIGHTING_BACK_COLOR);
+    
     $(config.addButtonTo).prepend($(playerTemplate));
 
     $("#" + config.btnRead).click(onButtonReaderClick);
@@ -115,7 +120,7 @@ function addListenerToPlayerMnu() {
     });
 
     // https://github.com/seiyria/bootstrap-slider/
-    slider = new Slider('#timeRangeSlider', {
+    timeRangeSlider = new Slider('#timeRangeSlider', {
 
         model: model,
         formatter: function (value) {
@@ -130,23 +135,32 @@ function addListenerToPlayerMnu() {
         }
     });
 
-    slider.disable();
+    timeRangeSlider.disable();
 
     model.bind("change:is_ready", enableSlider);
 
-    slider.on("slideStop", function (slideEvt) {
-        player.playAt(slideEvt);
+    timeRangeSlider.on("slideStop", function (value) {
+        player.playAt(value);
     });
     
-    $("#rate-range-slider").change(function(){
-        const rate = $(this).val();
+    
+    const rateSlide = new Slider("#rate-range-slider");
+    rateSlide.on("slideStop", function (rate) {
         player.setRate(rate);
+    });
+
+
+    $('.btn-mo-highlighter').on("click", function () {
+
+        const foreground = $( this ).css("color");
+        const background = $( this ).css("background-color");
+        setHighlightingColor(foreground, background);
     });
 }
 
 function enableSlider() {
     model.unbind("change:is_ready", enableSlider);
-    slider.enable();
+    timeRangeSlider.enable();
 }
 
 function zeroPad(n, length) {
@@ -294,3 +308,14 @@ function fixBootstrapFontPath() {
     //    href: p + 'fonts.css'
     //});
 }
+
+function setHighlightingColor(foreColor, backColor) {
+
+    $("style[id=highlighting]").remove();
+    
+    const styleTag = $('<style id=\"highlighting\">.highlight { color: ' + foreColor + '; background-color: ' + backColor + ' ; } </style>');
+    $('html > head').append(styleTag);
+}
+
+
+

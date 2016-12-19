@@ -5,7 +5,7 @@
             Artikel vorlesen
             <span class="glyphicon glyphicon-refresh glyphicon-spin glyphicon-spin-hide" aria-hidden="true"></span>
         </button>
-        <div class="mnu-player">
+        <div id="mnu-player" class="mnu-player">
             <button tabindex="1" id="btnPlay" class="btn  btn-sm btn-custom"
                     aria-label="Wiedergabe Starten oder Pausieren">
                 <span title="Play" id="play" class="glyphicon glyphicon-play" aria-hidden="true"></span>
@@ -13,8 +13,8 @@
             <button tabindex="2" id="btnStop" class="btn  btn-sm btn-custom" aria-label="Wiedergabe stoppen">
                 <span title="Stop" id="stop" class="glyphicon glyphicon-stop" aria-hidden="true"></span>
             </button>
-            <input disabled tabindex="3" id="timeRangeSlider" type="text"  role="slider" aria-value-min="0"
-                   aria-valuemin="0"  aria-value-max="100" aria-valuemax="100"
+            <input disabled tabindex="3" id="timeRangeSlider" type="text" role="slider" aria-value-min="0"
+                   aria-valuemin="0" aria-value-max="100" aria-valuemax="100"
                    value="0" aria-valuenow="0" aria-value-now="0" aria-valuetext="0%" aria-value-text="0%"
                    data-value="0" title="Navigationsleiste"
                    aria-label="Navigationsleiste zur Navigation innerhalb des Textes" data-slider-value="0"
@@ -32,9 +32,13 @@
                 accesskey="">
             <span class="glyphicon glyphicon-play-circle" aria-hidden="true"></span>
         </button>
-        <input tabindex="1" id="rate-range-slider" type="range" role="slider" min="0" aria-value-min="0"
-               aria-valuemin="0" max="2.5" aria-value-max="2.5" aria-valuemax="2.5" value="1" aria-valuenow="1"
-               aria-value-now="1" aria-valuetext="1x" aria-value-text="1x" step="0.1" title="Lesegeschwindigkeit" aria-label="Einstellung der Geschwindigkeit"/>
+        <input tabindex="1" id="rate-range-slider" type="range" role="slider" aria-value-min="0"
+               aria-valuemin="0" aria-value-max="2.5" aria-valuemax="2.5" value="1" aria-valuenow="1"
+               aria-value-now="1" aria-valuetext="1x" aria-value-text="1x" title="Lesegeschwindigkeit"
+               aria-label="Einstellung der Geschwindigkeit"
+               data-slider-value="1"
+               data-slider-min="0" data-slider-max="2.5" data-slider-step="0.1"
+        />
 
         <span aria-hidden="true" tabindex="-1" id="rate-range-slider-label">1x</span>
 
@@ -81,16 +85,16 @@
                 </button>
             </div>
 
-            <button tabindex="1" id="btn-playback-scroll-enable" type="button" class="btn icon-playback-scroll-enable"
-                    title="" aria-label="">
-                <span id="icon-playback-scroll-off" class="glyphicon glyphicon-sort-by-attributes"
-                      aria-hidden="true"></span>
-            </button>
+            <!--<button tabindex="1" id="btn-playback-scroll-enable" type="button" class="btn icon-playback-scroll-enable"-->
+                    <!--title="" aria-label="">-->
+                <!--<span id="icon-playback-scroll-off" class="glyphicon glyphicon-sort-by-attributes"-->
+                      <!--aria-hidden="true"></span>-->
+            <!--</button>-->
 
-            <button tabindex="1" id="btn-playback-scroll-disable" type="button" class="btn icon-playback-scroll-disable"
-                    title="" aria-label="">
-                <span id="icon-playback-scroll-on" class="glyphicon glyphicon-sort" aria-hidden="true"></span>
-            </button>
+            <!--<button tabindex="1" id="btn-playback-scroll-disable" type="button" class="btn icon-playback-scroll-disable"-->
+                    <!--title="" aria-label="">-->
+                <!--<span id="icon-playback-scroll-on" class="glyphicon glyphicon-sort" aria-hidden="true"></span>-->
+            <!--</button>-->
 
         </div>
     </div>

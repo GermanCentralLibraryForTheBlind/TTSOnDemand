@@ -12,6 +12,8 @@ Backbone.$ = $;
 var MediaOverlay = Backbone.Model.extend({
     audioplayer: null,
     smilModel: null,
+    
+    highlighting: null,
 
     // observable properties
     defaults: {
@@ -28,6 +30,12 @@ var MediaOverlay = Backbone.Model.extend({
 
     initialize: function () {
         var self = this;
+        
+        // default highlighting colors
+        this.highlighting = {
+            color: "black", 
+            backgroundColor: "#ffcb59"
+        };
         this.audioplayer = new AudioClipPlayer();
         this.audioplayer.setConsoleTrace(true);
 
@@ -201,6 +209,9 @@ var MediaOverlay = Backbone.Model.extend({
         if (this.get("is_ready") === false || this.smilModel === null)
             return '';
         return this.smilModel.getTotalDuration();
+    },
+    getHighlightingColors: function () {
+        return this.highlighting;
     }
 });
 
